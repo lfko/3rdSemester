@@ -58,7 +58,10 @@ def convolution_2d(img, kernel):
 
 if __name__ == "__main__":
 
+    filename = "Lenna.png"
     # 1. load image in grayscale
+    img = cv2.imread(filename, imread.IMREAD_GRAYSCALE)
+    
     # 2. convert image to 0-1 image (see im2double)
 
 
