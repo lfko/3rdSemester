@@ -54,17 +54,28 @@ def convolution_2d(img, kernel):
     :return: result of the convolution
 
     @NB: http://machinelearninguru.com/computer_vision/basics/convolution/image_convolution_1.html
+    @NB: http://www.adeveloperdiary.com/data-science/computer-vision/applying-gaussian-smoothing-to-an-image-using-python-from-scratch/
     """
-    # TODO write convolution of arbritrary sized convolution here
-    # Hint: you need the kernelsize
+    imgRow, imgCol = img.shape
+    kernRow, kernCol = kernel.shape
 
-    offset = int(kernel.shape[0]/2)
+    print('shape kernel', kernel.shape)
+    print('shape img', img.shape)
+
+    offset = int(kernRow/2) # center of the kernel
     newimg = np.zeros(img.shape) # picture blank, filled with zeroes, sized liked the original image
-    # TODO ??? Padding ???
+    
+    pad_height = int((kernRow - 1) / 2) # added area of padding in y direction
+    pad_width = int((kernCol - 1) / 2) # added area of padding in X direction
+    
+    img_pad = np.zeros((imgRow + (2 * pad_height), imgCol + (2 * pad_width)))
+    # TODO Verstehen!
+    img_pad[pad_height:img_pad.shape[0] - pad_height, pad_width:img_pad.shape[1] - pad_width] = img # set the non-padded area with our original picture
+
     # iterate pixel by pixel
-    for x in range(img.shape[0]):
-        for y in range(img.shape[1]):
-            newimg[x, y] = (kernel * img[y:y + 11, x:x + 11]).sum()
+    for row in range(imgRow):
+        for col in range(imgCol):
+            newimg[row, col] = np.dot(kernel, img_pad[row:row + kernRow, col:col + kernCol]).sum()
 
     return newimg
 
@@ -78,7 +89,6 @@ if __name__ == "__main__":
 
     # cv2.cvtColor does the color conversion from gray to color
     final_img = np.concatenate((cv2.cvtColor(img_gray,cv2.COLOR_GRAY2RGB, img_col)), axis=1)
-    #print(final_img.shape, final_img.size)
 
     # 2. convert image to 0-1 image (see im2double)
     img = im2double(img_gray)
@@ -87,19 +97,22 @@ if __name__ == "__main__":
     # for calculating the gradients
     sobelmask_x = np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]])
     sobelmask_y = np.array([[1, 2, 1], [0, 0, 0], [-1, -2, -1]])
-    gk = make_gaussian(11)
-    print(gk)
+    gk = make_gaussian(3)
+
     # 3 .use image kernels on normalized image
     conv_img = convolution_2d(img, gk)
+    sobel_x_img = convolution_2d(conv_img, sobelmask_x)
+    sobel_y_img = convolution_2d(conv_img, sobelmask_y)
 
     # 4. compute magnitude of gradients
+    mog = np.sqrt(np.square(sobel_x_img) + np.square(sobel_y_img))
 
     # Show resulting images
-    '''
-    cv2.imshow("sobel_x", sobel_x)
-    cv2.imshow("sobel_y", sobel_y)
-    '''
-    cv2.imshow("mog", conv_img)
+    
+    cv2.imshow("conv_img", conv_img)
+    cv2.imshow("sobel_x", sobel_x_img)
+    cv2.imshow("sobel_y", sobel_y_img)
+    cv2.imshow("mog", mog)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
     
