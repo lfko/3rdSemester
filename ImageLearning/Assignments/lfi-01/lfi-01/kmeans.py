@@ -3,6 +3,7 @@ import cv2
 import math
 import sys
 
+import random
 
 ############################################################
 #
@@ -41,6 +42,10 @@ def assign_to_current_mean(img, result, clustermask):
 def initialize(img):
     """inittialize the current_cluster_centers array for each cluster with a random pixel position"""
     # YOUR CODE HERE
+
+    for k in range(numclusters):
+        current_cluster_centers[k, 0] = cluster_colors[k]
+        
     print(current_cluster_centers)
 
 
@@ -58,6 +63,7 @@ def kmeans(img):
     result = np.zeros((h1, w1, 3), np.uint8)
 
     # initializes each pixel to a cluster
+    initialize(img)
     # iterate for a given number of iterations or if rate of change is
     # very small
     # YOUR CODE HERE
@@ -72,7 +78,7 @@ cluster_colors = [[255, 0, 0], [0, 255, 0], [0, 0, 255], [0, 255, 255], [255, 25
 current_cluster_centers = np.zeros((numclusters, 1, 3), np.float32)
 
 # load image
-imgraw = cv2.imread('./images/Lenna.png')
+imgraw = cv2.imread('Lenna.png')
 scaling_factor = 0.5
 imgraw = cv2.resize(imgraw, None, fx=scaling_factor, fy=scaling_factor, interpolation=cv2.INTER_AREA)
 
