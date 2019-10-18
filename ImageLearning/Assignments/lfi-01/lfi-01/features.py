@@ -28,9 +28,11 @@ while True:
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     # exctract SIFT features, using a SIFT object
     sift = cv2.xfeatures2d.SIFT_create()
-    kp = sift.detect(frame, None)
-
+    #kp = sift.detect(frame, None) # detects the keypoints
+    kp, desc = sift.detectAndCompute(frame, None)
+    frame = cv2.drawKeypoints(frame, kp, frame, flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
     # Display the resulting frame
+    # with size and orientation of the keypoint
     cv2.imshow('frame', frame)
 
 # When everything done, release the capture
