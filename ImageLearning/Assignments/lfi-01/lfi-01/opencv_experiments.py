@@ -14,6 +14,7 @@ import cv2
 @NB
     Blurs and Filters: https://www.youtube.com/watch?v=C_zFhWdM4ic&list=PLhhhoPkZzWjZlXDz7AeIl4HfyGMPlsWK7&index=11
     ED: https://www.youtube.com/watch?v=uihBwtPIBxM&list=PLhhhoPkZzWjZlXDz7AeIl4HfyGMPlsWK7&index=13 (Sobel)
+    Impl: https://pythonprogramming.net/thresholding-image-analysis-python-opencv-tutorial/
 '''
 
 cap = cv2.VideoCapture(0)
@@ -30,24 +31,24 @@ while(True):
         # HSV
 
     if ch == ord('2'):
-        mode == 2 
+        mode = 2 
         # LAB
 
     if ch == ord('3'):
-        mode == 3 
+        mode = 3 
         # YUV
 
     if ch == ord('4'):
-        mode == 4
+        mode = 4
         # Canny Edge Detection (the easy way) 
 
     if ch == ord('5'):
         # Thresholding Gaussian
-        mode == 5 
+        mode = 5 
 
     if ch == ord('6'):
         # Thresholding Otsu
-        mode == 6 
+        mode = 6 
 
     if ch == ord('q'):
         break
@@ -80,15 +81,17 @@ while(True):
     if mode == 4:
         # Canny Edge
         frame = cv2.Canny(frame, 100, 200, L2gradient = True)
-    
+
     if mode == 5:
         # Thresholding Gaussian, 255 max value, either-or threshold, 50 pixel vicinity for the calculation
-        retval, frame = cv2.adaptiveThreshold(frame, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 50, 1)
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        frame = cv2.adaptiveThreshold(frame, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 115, 1)
     
     if mode == 6:
         # Thresholding Otsu, 255 max value, either-or threshold, 50 pixel vicinity for the calculation
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         retval, frame = cv2.threshold(frame, 125, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-
+        #cv2.imshow('threshold', threshold)
     # Display the resulting frame
     cv2.imshow('frame', frame)
 
