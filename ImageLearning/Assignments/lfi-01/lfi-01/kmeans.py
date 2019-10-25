@@ -5,6 +5,11 @@ import sys
 
 import random
 
+'''
+    @NB: https://lmcaraig.com/color-quantization-using-k-means
+'''
+
+
 ############################################################
 #
 #                       KMEANS
@@ -13,8 +18,8 @@ import random
 
 # implement distance metric - e.g. squared distances between pixels
 def distance(a, b):
-    pass
-    # YOUR CODE HERE
+    return np.linalg.norm(a-b) # basic euclidean distance
+    
 
 # k-means works in 3 steps
 # 1. initialize
@@ -24,8 +29,22 @@ def distance(a, b):
 
 def update_mean(img, clustermask):
     """This function should compute the new cluster center, i.e. numcluster mean colors"""
-    # YOUR CODE HERE
-    pass
+    #print(img.shape)
+    #print(clustermask.shape)
+
+    rows, cols = img.shape[:2] 
+    '''
+    for row in rows:
+        for col in cols:
+            # get the cluster label for the pixel
+            clab = clustermask.item(row, col, 0)  
+    '''
+    for k in range(numclusters):
+        clust_mean = np.mean(img[clustermask[:, :, 0] == k], axis = 0)
+        #print(clust_mean)
+        current_cluster_centers[k, 0] = clust_mean
+
+    print('updated cluster_centers: ', current_cluster_centers)
 
 def assign_to_current_mean(img, result, clustermask):
     """The function expects the img, the resulting image and a clustermask.
@@ -34,17 +53,37 @@ def assign_to_current_mean(img, result, clustermask):
     Return: the overall error (distance) for all pixels to there closest cluster center (mindistance px - cluster center).
     """
     overall_dist = 0
-    # YOUR CODE HERE
+
+    for row in range(h1):
+        for col in range(w1):
+            dist_to_c = {} # {"cluster", "distance"}
+            for k in range(numclusters):
+                k = np.random.randint(0, numclusters)
+                # calculate distance to the colors
+                d = distance(img[row, col], current_cluster_centers[k, 0])
+                # save them in a dictionary, with k as key and the distance to c as value
+                dist_to_c[k] = d
+
+            # smallest distance wins, i.e. pixel will be assigned to this cluster
+            # cluster assignment (idx)
+            new_clust = min(dist_to_c, key = dist_to_c.get)
+            clustermask[row, col] = new_clust
+            # colour assignment
+            result[row, col] = current_cluster_centers[new_clust, 0]
+
+            # add the min distance to the overall count
+            overall_dist += dist_to_c.get(new_clust)
+
     return overall_dist
 
 
 
 def initialize(img):
     """inittialize the current_cluster_centers array for each cluster with a random pixel position"""
-    # YOUR CODE HERE
 
     for k in range(numclusters):
-        current_cluster_centers[k, 0] = cluster_colors[k]
+        current_cluster_centers[k, 0] = np.asarray(cluster_colors[np.random.randint(0, len(cluster_colors))])
+        #current_cluster_centers[k, 0] = np.asarray(cluster_colors[k])
         
     print(current_cluster_centers)
 
@@ -56,17 +95,32 @@ def kmeans(img):
     since there is no guarantee we find a global minimum.
     """
     max_iter = 10
-    max_change_rate = 0.02
+    max_change_rate = 0.0002
     dist = sys.float_info.max
+    prev_dist = sys.float_info.max
 
     clustermask = np.zeros((h1, w1, 1), np.uint8)
     result = np.zeros((h1, w1, 3), np.uint8)
 
-    # initializes each pixel to a cluster
     initialize(img)
-    # iterate for a given number of iterations or if rate of change is
-    # very small
-    # YOUR CODE HERE
+
+    for i in range(max_iter):
+
+        # calculate total variance and check if change to the previous iteration
+        # is below the threshold
+        dist = assign_to_current_mean(img, result, clustermask)
+        #print('prev_dist after iteration', i, ': ', prev_dist)
+        print('overall dist after iteration', i, ': ', dist)
+        
+        update_mean(result, clustermask)
+
+        if i > 0:
+            curr_change = 1 - (dist/prev_dist)
+            print(curr_change)
+            if curr_change <= max_change_rate:
+                break
+        else:
+            prev_dist = dist
 
     return result
 
@@ -82,9 +136,11 @@ imgraw = cv2.imread('Lenna.png')
 scaling_factor = 0.5
 imgraw = cv2.resize(imgraw, None, fx=scaling_factor, fy=scaling_factor, interpolation=cv2.INTER_AREA)
 
-# compare different color spaces and their result for clustering
-# YOUR CODE HERE or keep going with loaded RGB colorspace img = imgraw
-image = imgraw
+image = imgraw # BGR
+#image = cv2.cvtColor(imgraw, cv2.COLOR_BGR2HSV)
+#image = cv2.cvtColor(imgraw, cv2.COLOR_BGR2LAB)
+#image = cv2.cvtColor(imgraw, cv2.COLOR_BGR2YUV)
+
 h1, w1 = image.shape[:2]
 
 # execute k-means over the image

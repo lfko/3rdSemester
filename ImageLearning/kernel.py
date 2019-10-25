@@ -11,6 +11,18 @@ def median_kernel():
     '''
     return np.array([[0, -0.25, 0], [-0.25, 1, -0.25], [0, -0.25, 0]])
 
+def mean_kernel():
+    return np.array([[1, 1, 1],
+                    [1, 1, 1],
+                    [1, 1, 1]])
+
+def hpf_kernel():
+    return np.array([np.repeat(-1, 5),
+                    [-1, 1, 2, 1, -1],
+                    [-1, 2, 4, 2, -1],
+                    [-1, 1, 2, 1, -1],
+                    np.repeat(-1,5 )])
+
 def emboss_kernel():
     return np.array([[-2, -1, 0], [-1, 1, 1], [0, 1, 2]])
 
@@ -19,6 +31,13 @@ def avg_kernel(size = 3):
 
 def sharpen_kernel():
     return np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]])
+
+def gaussian_blur(X, sigma = 1, mu = 0):
+    Y = (1/(sigma * np.sqrt(2*np.pi)))*np.exp((-(X - mu)**2)/(2*sigma**2))
+    Y = Y.reshape((3, 3))
+    print(Y, Y.shape)
+
+    return Y
 
 def convolution_2d(img, kernel):
 
@@ -42,10 +61,25 @@ def convolution_2d(img, kernel):
 
 if __name__ == "__main__":
 
-    img = cv2.imread("???.jpg") # per default loads a BGR color image
+    img = cv2.imread("Johanna.jpg") # per default loads a BGR color image
     img_grey = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    #w, h, ch = img.shape # retrieve width, heigth and the number of channels
+    print(img_grey.shape)
+    retval, img_grey_th = cv2.threshold(img_grey, 120, 255, cv2.THRESH_BINARY)
 
-    cv2.imshow("img", convolution_2d(img_grey, median_kernel())) 
+    #w, h, ch = img.shape # retrieve width, heigth and the number of channels
+    img_kernel = convolution_2d(img_grey, mean_kernel())
+    blurred = cv2.GaussianBlur(img_grey, (11, 11), 0)
+    print(blurred.shape)
+    cv2.imshow("greyth", img_grey_th)
+    cv2.imshow("img_kernel", img_kernel) # HPF
+    #cv2.imshow("blurred", blurred)
+    #cv2.imshow("g_hpf", img_kernel - blurred) # LPF?
+    
+    X = np.arange(0, 9, 1, float)
+    Y = gaussian_blur(X)
+    new_img = cv2.filter2D(img_grey, -1, mean_kernel())
+    cv2.imshow("org_img", img)
+    cv2.imshow("new_img", new_img)
+
     cv2.waitKey(0)
     cv2.destroyAllWindows()

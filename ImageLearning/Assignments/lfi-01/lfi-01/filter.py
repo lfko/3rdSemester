@@ -62,14 +62,13 @@ def convolution_2d(img, kernel):
     print('shape kernel', kernel.shape)
     print('shape img', img.shape)
 
-    offset = int(kernRow/2) # center of the kernel
+    #offset = int(kernRow/2) # center of the kernel
     newimg = np.zeros(img.shape) # picture blank, filled with zeroes, sized liked the original image
     
     pad_height = int((kernRow - 1) / 2) # added area of padding in y direction
     pad_width = int((kernCol - 1) / 2) # added area of padding in X direction
     
     img_pad = np.zeros((imgRow + (2 * pad_height), imgCol + (2 * pad_width)))
-    # TODO Verstehen!
     img_pad[pad_height:img_pad.shape[0] - pad_height, pad_width:img_pad.shape[1] - pad_width] = img # set the non-padded area with our original picture
 
     # iterate pixel by pixel
