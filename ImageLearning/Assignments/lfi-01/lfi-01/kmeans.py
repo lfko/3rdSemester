@@ -36,6 +36,8 @@ def update_mean(img, clustermask):
             continue
         # using the cluster assignments for boolean indexing
         clust_mean = np.mean(img[clustermask[:, :, 0] == k], axis = 0)
+        # possible IMPROVEMENT: use the median instead
+        #clust_mean = np.median(img[clustermask[:, :, 0] == k], axis = 0)
         current_cluster_centers[k, 0] = np.asarray(clust_mean)
 
     print('updated cluster_centers: ')
@@ -122,7 +124,7 @@ def kmeans(img):
 # num of cluster
 numclusters = 3
 # corresponding colors for each cluster
-cluster_colors = [[255, 0, 0], [0, 255, 0], [0, 0, 255], [0, 255, 255], [255, 255, 255], [0, 0, 0], [128, 128, 128]]
+cluster_colors = [[255, 0, 0], [0, 255, 0], [0, 0, 255], [0, 255, 255], [255, 255, 0], [255, 0, 255], [255, 255, 255], [0, 0, 0], [128, 128, 128]]
 # initialize current cluster centers (i.e. the pixels that represent a cluster center)
 current_cluster_centers = np.zeros((numclusters, 1, 3), np.float32)
 

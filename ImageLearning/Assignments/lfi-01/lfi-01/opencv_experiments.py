@@ -9,7 +9,7 @@ import cv2
     to every channel independently
 
 @NB
-    Edge Detection
+    Thresholding: https://docs.opencv.org/master/d7/d4d/tutorial_py_thresholding.html
 
 @NB
     Blurs and Filters: https://www.youtube.com/watch?v=C_zFhWdM4ic&list=PLhhhoPkZzWjZlXDz7AeIl4HfyGMPlsWK7&index=11
@@ -85,10 +85,10 @@ while(True):
     if mode == 5:
         # Thresholding Gaussian, 255 max value, either-or threshold, 50 pixel vicinity for the calculation
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        frame = cv2.adaptiveThreshold(frame, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 115, 1)
+        frame = cv2.adaptiveThreshold(frame, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 50, 1)
     
     if mode == 6:
-        # Thresholding Otsu, 255 max value, either-or threshold, 50 pixel vicinity for the calculation
+        # Thresholding Otsu, 255 max value, either-or threshold
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         retval, frame = cv2.threshold(frame, 125, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
         #cv2.imshow('threshold', threshold)

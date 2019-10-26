@@ -27,7 +27,6 @@ def make_gaussian(size, fwhm = 3, center=None):
     returns a size-by-size kernel, filled with gaussian created values
     
     @NB:- GK is a low-pass filter kernel; good for removing noise. High frequency content (edges, noise) is removed/blurred
-        - 
         - https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_filtering/py_filtering.html#filtering
     """
 
@@ -74,7 +73,7 @@ def convolution_2d(img, kernel):
     # iterate pixel by pixel
     for row in range(imgRow):
         for col in range(imgCol):
-            newimg[row, col] = np.dot(kernel, img_pad[row:row + kernRow, col:col + kernCol]).sum()
+            newimg[row, col] = np.dot(kernel, img_pad[row:row + kernRow, col:col + kernCol]).sum() # apply the kernel on the kernel-sized area via dot product + sum
 
     return newimg
 
@@ -108,6 +107,7 @@ if __name__ == "__main__":
 
     # Show resulting images
     
+    cv2.imshow("concatenated images", final_img)
     cv2.imshow("conv_img", conv_img)
     cv2.imshow("sobel_x", sobel_x_img)
     cv2.imshow("sobel_y", sobel_y_img)
