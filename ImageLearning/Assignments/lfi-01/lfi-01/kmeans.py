@@ -29,22 +29,17 @@ def distance(a, b):
 
 def update_mean(img, clustermask):
     """This function should compute the new cluster center, i.e. numcluster mean colors"""
-    #print(img.shape)
-    #print(clustermask.shape)
 
-    rows, cols = img.shape[:2] 
-    '''
-    for row in rows:
-        for col in cols:
-            # get the cluster label for the pixel
-            clab = clustermask.item(row, col, 0)  
-    '''
     for k in range(numclusters):
+        # check if there are any pixels at all belonging to this cluster
+        if len(img[clustermask[:, :, 0] == k]) == 0:
+            continue
+        # using the cluster assignments for boolean indexing
         clust_mean = np.mean(img[clustermask[:, :, 0] == k], axis = 0)
-        #print(clust_mean)
-        current_cluster_centers[k, 0] = clust_mean
+        current_cluster_centers[k, 0] = np.asarray(clust_mean)
 
-    print('updated cluster_centers: ', current_cluster_centers)
+    print('updated cluster_centers: ')
+    print(current_cluster_centers)
 
 def assign_to_current_mean(img, result, clustermask):
     """The function expects the img, the resulting image and a clustermask.
@@ -58,7 +53,6 @@ def assign_to_current_mean(img, result, clustermask):
         for col in range(w1):
             dist_to_c = {} # {"cluster", "distance"}
             for k in range(numclusters):
-                k = np.random.randint(0, numclusters)
                 # calculate distance to the colors
                 d = distance(img[row, col], current_cluster_centers[k, 0])
                 # save them in a dictionary, with k as key and the distance to c as value
@@ -82,8 +76,9 @@ def initialize(img):
     """inittialize the current_cluster_centers array for each cluster with a random pixel position"""
 
     for k in range(numclusters):
-        current_cluster_centers[k, 0] = np.asarray(cluster_colors[np.random.randint(0, len(cluster_colors))])
-        #current_cluster_centers[k, 0] = np.asarray(cluster_colors[k])
+        col = cluster_colors[np.random.randint(0, len(cluster_colors))]
+        current_cluster_centers[k, 0] = np.asarray(col)
+        cluster_colors.remove(col) # remove selected color afterwards to avoid having same cluster centers
         
     print(current_cluster_centers)
 
@@ -95,7 +90,7 @@ def kmeans(img):
     since there is no guarantee we find a global minimum.
     """
     max_iter = 10
-    max_change_rate = 0.0002
+    max_change_rate = 0.02
     dist = sys.float_info.max
     prev_dist = sys.float_info.max
 
@@ -103,24 +98,24 @@ def kmeans(img):
     result = np.zeros((h1, w1, 3), np.uint8)
 
     initialize(img)
+    # initial cluster assignment
+    prev_dist = assign_to_current_mean(img, result, clustermask)
+    update_mean(img, clustermask)
 
     for i in range(max_iter):
 
         # calculate total variance and check if change to the previous iteration
         # is below the threshold
         dist = assign_to_current_mean(img, result, clustermask)
-        #print('prev_dist after iteration', i, ': ', prev_dist)
-        print('overall dist after iteration', i, ': ', dist)
-        
-        update_mean(result, clustermask)
+        update_mean(img, clustermask)
 
-        if i > 0:
-            curr_change = 1 - (dist/prev_dist)
-            print(curr_change)
-            if curr_change <= max_change_rate:
-                break
-        else:
-            prev_dist = dist
+        print('overall dist after iteration', i, ': ', dist)
+        curr_change_rate = np.abs((dist - prev_dist)/prev_dist) 
+        print(curr_change_rate)
+        if curr_change_rate < max_change_rate:
+            break
+
+        prev_dist = dist
 
     return result
 
