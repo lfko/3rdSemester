@@ -1,0 +1,14 @@
+# (0) inspirational quote by Richard Feynmann: "The first principle is that you must not fool yourself — and you are the easiest person to fool."
+# (1) Create a common-sense baseline first
+- https://towardsdatascience.com/first-create-a-common-sense-baseline-e66dbf8a8a47
+- that would be the most basic approach, given the fact, that you (should) know your data and the problem at hand
+- other than that any heuristic should do the same for you
+
+# (2) Go for a simple (stupid) model, which serves as your first benchmark
+- https://blog.insightdatascience.com/always-start-with-a-stupid-model-no-exceptions-3a22314b9aaa
+
+# (3) Use already existing baseline models/data sets for comparison
+- https://towardsdatascience.com/beating-state-of-the-art-by-tuning-baselines-74ec6ad2cd59
+
+# (Papers/Links)
+- On the Difficulty of Evaluating Baselines: A Study on Recommender Systems (Steffen Rendle, Li Zhang, Yehuda Koren 2019)
