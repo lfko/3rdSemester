@@ -12,3 +12,7 @@
 
 # (Papers/Links)
 - On the Difficulty of Evaluating Baselines: A Study on Recommender Systems (Steffen Rendle, Li Zhang, Yehuda Koren 2019)
+- https://machinelearningmastery.com/how-to-get-baseline-results-and-why-they-matter/
+- https://machinelearningmastery.com/why-you-should-be-spot-checking-algorithms-on-your-machine-learning-problems/
+- https://machinelearningmastery.com/how-to-know-if-your-machine-learning-model-has-good-performance/
+- (On designing data products) https://medium.com/upwork-datascience/managing-data-science-with-v2mom-scrum-and-cross-functional-squads-655b08cf828b
