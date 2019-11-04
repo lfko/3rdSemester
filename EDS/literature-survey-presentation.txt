@@ -16,3 +16,4 @@
 - https://machinelearningmastery.com/why-you-should-be-spot-checking-algorithms-on-your-machine-learning-problems/
 - https://machinelearningmastery.com/how-to-know-if-your-machine-learning-model-has-good-performance/
 - (On designing data products) https://medium.com/upwork-datascience/managing-data-science-with-v2mom-scrum-and-cross-functional-squads-655b08cf828b
+- (Rules of Machine Learning) https://developers.google.com/machine-learning/guides/rules-of-ml
