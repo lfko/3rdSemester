@@ -7,6 +7,7 @@ from queue import PriorityQueue
 ############################################################
 #
 #              Simple Image Retrieval
+#              A2.1
 #
 ############################################################
 
@@ -55,18 +56,30 @@ print(len(descriptors))
 imgtest = cv2.imread("./images/db/test/car.jpg", 0)
 kp, descr = sift.compute(imgtest, keypoints)
 
-q = PriorityQueue()
+q = PriorityQueue() # internally uses heappush() to sort via distance
 
 # compare distances using L2-Norm
 for i, d in enumerate(descriptors):
-    dist = distance(d-descr)
+    dist = distance(d, descr)
     q.put((dist, images[i]))
 
 # 5. output (save and/or display) the query results in the order of smallest distance
+ranking = open("./ranking.txt", "w+")
+ranking.write("Rank \t Distance \t Filename \n")
+rank = 1
 while not q.empty():
     next_item = q.get()
-    print('distance: ', next_item[0])
-    cv2.imshow("query result", cv2.imread(next_item[1]))
-    cv2.waitKey(0)
+    similarity = next_item[0]
+    img_name = next_item[1]
+    ranking.write(str(rank))
+    ranking.write("\t")
+    ranking.write(str(similarity))
+    ranking.write("\t")
+    ranking.write(img_name)
+    ranking.write("\n")
+    rank += 1
+    #cv2.imshow("query result", cv2.imread(img_name))
+    #cv2.waitKey(0)
 
-cv2.destroyAllWindows()
+ranking.close()
+#cv2.destroyAllWindows()

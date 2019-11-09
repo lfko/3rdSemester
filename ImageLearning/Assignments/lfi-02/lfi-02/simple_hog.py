@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 ###############################################################
 #
 # Write your own descriptor / Histogram of Oriented Gradients
+# A2.2
 #
 ###############################################################
 feature_params = dict(maxCorners=500,qualityLevel=0.01,minDistance=10)
@@ -44,7 +45,7 @@ def compute_simple_hog(imgcolor, keypoints):
         # extract angle in keypoint sub window
         x_sub, y_sub = kp.pt
 
-        block_edge_size = int(kp.size/(np.sqrt(2))) # diameter of a square
+        block_edge_size = int(kp.size/2)+1 # +1 for the offset, since we are looking at an ellipsoid 
         angles = phase[int(x_sub-block_edge_size):int(x_sub+block_edge_size),
                         int(y_sub-block_edge_size):int(y_sub+block_edge_size)]
 
@@ -55,14 +56,12 @@ def compute_simple_hog(imgcolor, keypoints):
         # create histogram of angle in subwindow BUT only where magnitude of gradients is non zero! Why? Find an
         # answer to that question use np.histogram
         angles = angles[mags > .0]
-
-        bins = np.arange(angles.min(), np.ceil(angles.max()), step = angles.max()/8) 
-        (hist, bins) = np.histogram(angles, bins = bins, density = True)
+        #bins = np.arange(angles.min(), np.ceil(angles.max()), step = angles.max()/8) 
+        (hist, bins) = np.histogram(angles, bins = 8, density = True, range = (0, 2*np.pi)) # we are using angles so max range with 2*PI
 
         plot_histogram(hist, bins)
 
-        # TODO shapes do not equal?
-        #descr[count] = hist
+        descr[count] = hist
 
     return descr
 
@@ -70,5 +69,6 @@ def compute_simple_hog(imgcolor, keypoints):
 keypoints = [cv2.KeyPoint(15, 15, 11)]
 
 # test for all test images
-test = cv2.imread('./images/hog_test/diag.jpg')
+# all of them look good except for the vert.jpg
+test = cv2.imread('./images/hog_test/circle.jpg')
 descriptor = compute_simple_hog(test, keypoints)
