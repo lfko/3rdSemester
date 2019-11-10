@@ -23,7 +23,7 @@ def plot_histogram(hist, bins):
 def compute_simple_hog(imgcolor, keypoints):
 
     # convert color to gray image and extract feature in gray
-    imggray = cv2.cvtColor(imgcolor, cv2.COLOR_RGB2GRAY)
+    imggray = cv2.cvtColor(imgcolor, cv2.COLOR_BGR2GRAY)
 
     # compute x and y gradients (sobel kernel size 5)
     x_grads = cv2.Sobel(imggray, cv2.CV_32FC1, dx = 1, dy = 0, ksize = 5)
