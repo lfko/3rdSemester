@@ -43,8 +43,7 @@ sumIxy = cv2.filter2D(I_xy, -1, kernel = sumKernel)
 
 # iterate through each pixel position and calculate the change of intensity
 # at this position
-#for y in range(offset, rows - offset):
-#    for x in range(offset, cols - offset):
+'''
 for y in range(rows):
     for x in range(cols):
         # y - row; x - column
@@ -53,7 +52,7 @@ for y in range(rows):
         #sumIxy = I_xy[y-offset:y+offset+1, x-offset:x+offset+1].sum()
 
         # Compute the determinat and trace of M using sumGxx, sumGyy, sumGxy. 
-        M = np.array([[sumIxx[y, x], sumIxy[y, x]], [sumIxy[y, x], sumIyy[y, x]]])
+        M = np.array([[sumIxx, sumIxy], [sumIxy, sumIyy]])
         R = np.linalg.det(M) - k*(np.trace(M)**2) # response at the current pixel location
         harris_thres[y, x] = R
 
@@ -62,12 +61,15 @@ for y in range(rows):
             #img.itemset((y, x, 0), 0)
             #img.itemset((y, x, 1), 0)
             #img.itemset((y, x, 2), 255) # set the corner pixel to red
-
+'''
+det_M = (sumIxx*sumIyy) - sumIxy**2
+trace_M = sumIxx + sumIyy
+harris = det_M - k*(trace_M**2)
 print(harris_thres.shape)
 # Filter the harris 'image' with 'harris > threshold*harris.max()'
 # this will give you the indices where values are above the threshold.
 # These are the corner pixel you want to use
-harris_thres[harris_thres > threshold*harris_thres.max()] = [255] # corners are white
+harris_thres[harris > threshold*harris.max()] = [255] # corners are white
 
 # The OpenCV implementation looks like this - please do not change
 harris_cv = cv2.cornerHarris(gray,3,3,k)
@@ -79,6 +81,7 @@ harris_cv_thres[harris_cv>threshold*harris_cv.max()]=[255]
 # just for debugging to create such an image as seen
 # in the assignment figure.
 img[harris_thres>threshold*harris_thres.max()]=[255,0,0]
+
 
 
 # please leave this - adjust variable name if desired
