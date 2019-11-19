@@ -43,7 +43,7 @@ def update_mean(img, clustermask):
     print('updated cluster_centers: ')
     print(current_cluster_centers)
 
-def assign_to_current_mean(img, result, clustermask):
+def assign_to_current_mean(img, result, clustermask, default_cluster_colors = True):
     """The function expects the img, the resulting image and a clustermask.
     After each call the pixels in result should contain a cluster_color corresponding to the cluster
     it is assigned to. clustermask contains the cluster id (int [0...num_clusters]
@@ -65,7 +65,10 @@ def assign_to_current_mean(img, result, clustermask):
             new_clust = min(dist_to_c, key = dist_to_c.get)
             clustermask[row, col] = new_clust
             # colour assignment
-            result[row, col] = current_cluster_centers[new_clust, 0]
+            if(default_cluster_colors == True):
+                result[row, col] = current_cluster_centers[new_clust, 0] # shows the default (i.e. real) colors
+            else:
+                result[row, col] = selected_colors[new_clust] # shows the selected colors
 
             # add the min distance to the overall count
             overall_dist += dist_to_c.get(new_clust)
@@ -79,6 +82,7 @@ def initialize(img):
 
     for k in range(numclusters):
         col = cluster_colors[np.random.randint(0, len(cluster_colors))]
+        selected_colors.append(col)
         current_cluster_centers[k, 0] = np.asarray(col)
         cluster_colors.remove(col) # remove selected color afterwards to avoid having same cluster centers
         
@@ -101,14 +105,14 @@ def kmeans(img):
 
     initialize(img)
     # initial cluster assignment
-    prev_dist = assign_to_current_mean(img, result, clustermask)
+    prev_dist = assign_to_current_mean(img, result, clustermask, False)
     update_mean(img, clustermask)
 
     for i in range(max_iter):
 
         # calculate total variance and check if change to the previous iteration
         # is below the threshold
-        dist = assign_to_current_mean(img, result, clustermask)
+        dist = assign_to_current_mean(img, result, clustermask, False)
         update_mean(img, clustermask)
 
         print('overall dist after iteration', i, ': ', dist)
@@ -125,7 +129,8 @@ def kmeans(img):
 numclusters = 3
 # corresponding colors for each cluster
 cluster_colors = [[255, 0, 0], [0, 255, 0], [0, 0, 255], [0, 255, 255], [255, 255, 0], [255, 0, 255], [255, 255, 255], [0, 0, 0], [128, 128, 128]]
-# initialize current cluster centers (i.e. the pixels that represent a cluster center)
+selected_colors = [] # list for holding the selected colors
+# initialize current cluster centers with a random color
 current_cluster_centers = np.zeros((numclusters, 1, 3), np.float32)
 
 # load image
@@ -134,7 +139,7 @@ scaling_factor = 0.5
 imgraw = cv2.resize(imgraw, None, fx=scaling_factor, fy=scaling_factor, interpolation=cv2.INTER_AREA)
 
 image = imgraw # BGR
-#image = cv2.cvtColor(imgraw, cv2.COLOR_BGR2HSV)
+image = cv2.cvtColor(imgraw, cv2.COLOR_BGR2HSV)
 #image = cv2.cvtColor(imgraw, cv2.COLOR_BGR2LAB)
 #image = cv2.cvtColor(imgraw, cv2.COLOR_BGR2YUV)
 

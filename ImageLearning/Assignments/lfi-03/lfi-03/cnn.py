@@ -36,7 +36,7 @@ test_set = datasets.FashionMNIST(root=root, train=False, transform=transform, do
 # hyperparameter
 # TODO Find good hyperparameters
 batch_size = 64
-num_epochs = 10
+num_epochs = 5
 learning_rate = .001
 momentum = .5
 
@@ -53,78 +53,115 @@ data_loaders['test'] = torch.utils.data.DataLoader(
 
 # implement your own NNs
 
-class MyNeuralNetwork(nn.Module):
+class LeNet5(nn.Module):
     def __init__(self):
-        super(MyNeuralNetwork, self).__init__()
+        super(LeNet5, self).__init__()
         # IN: 28 x 28 x 1
-        self.features1 = nn.Sequential(
-            nn.Conv2d(1, 32, 3, padding = 1), nn.ReLU(),
-            #nn.Conv2d(32, 32, 3, padding = 1), nn.ReLU(),
-            nn.MaxPool2d(2, 2), nn.Dropout2d(0.25)
+        self.l1 = nn.Sequential(
+            nn.Conv2d(1, 6, 5, stride = 1, padding = 0), nn.ReLU(),
+            nn.BatchNorm2d(6)
         )
-        # OUT: 14 x 14 x 32
-        self.features2 = nn.Sequential(
-            nn.Conv2d(32, 64, 3, padding = 1), nn.ReLU(),
-            #nn.Conv2d(64, 64, 3, padding = 1), nn.ReLU(),
-            nn.MaxPool2d(2, 2), nn.Dropout2d(0.25)
+        # OUT: 26 x 26 x 6
+        self.l2 = nn.Sequential(
+            nn.AvgPool2d(2, 2)
         )
-        # OUT: 7 * 7 * 64
-        # Dense -> nn.Linear()
+        # OUT: 13 x 13 x 6
+        self.l3 = nn.Sequential(
+            nn.Conv2d(6, 16, 5, stride = 1, padding = 0)
+        )
+        # OUT: 10 x 10 x 16
+        self.l4 = nn.Sequential(
+            nn.AvgPool2d(2, 2)
+        )
+        # OUT: 5 x 5 x 16
+        self.l5 = nn.Sequential(
+            nn.Conv2d(16, 120, 3), nn.ReLU()
+        )
+        # OUT: 6 x 6 x 120
+        
         self.classifier = nn.Sequential(
-            nn.Linear(32 * 14 * 14, 512), nn.ReLU(),
-            nn.Linear(512, 10), nn.Softmax(dim = 1)
+            nn.Linear(5 * 5 * 16, 120), nn.ReLU(),
+            nn.Linear(120, 84), nn.ReLU(),
+            nn.Linear(84, 10), nn.ReLU()
         )
 
     def forward(self, x):
-        x = self.features1(x)
-        x = x.view(-1, 32 * 14 * 14) # TODO
-        #x = self.features2(x)
-        #x = x.view(-1, 64 * 7 * 7) # TODO
-
+        x = self.l1(x)
+        x = self.l2(x)
+        x = self.l3(x)
+        x = self.l4(x)
+        #x = self.l5(x)
+        #x = x.view(5 * 5 * 16, -1) # TODO
+        x = x.reshape(x.size(0), -1)
         return self.classifier(x)
 
     def name(self):
         return "MyNeuralNetwork"
 
-# TODO
-class AlexNet(nn.Module):
+# http://personal.ie.cuhk.edu.hk/~ccloy/files/aaai_2015_target_coding_supp.pdf
+class MyCNN(nn.Module):
     def __init__(self, classes = 10):
-        super(AlexNet, self).__init__()
+        super(MyCNN, self).__init__()
 
-    def forward(self, x):
-        pass
-
-    def name(self):
-        return 'Inspired by AlexNet'
-
-class SomeOtherNet(nn.Module):
-    def __init__(self, num_classes = 10):
-        super(SomeOtherNet, self).__init__()
-
-        self.conv1 = nn.Sequential(
-            nn.Conv2d(1, 6, 5), nn.ReLU()
+        self.layer1 = nn.Sequential(
+            nn.Conv2d(1, 32, 5, 1, 1), nn.ReLU(), nn.MaxPool2d(2, 2) # OUT: 32 x 14 x 14
         )
-        self.maxpool1 = nn.Sequential(
-            nn.MaxPool2d(2, 2)
+        self.layer2 = nn.Sequential(
+            nn.Conv2d(32, 64, 3, 1, 1), nn.ReLU(), nn.MaxPool2d(2, 2) # OUT: 64 x 7 x 7
         )
-        self.conv2 = nn.Sequential(
-            nn.Conv2d(6, 12, 5), nn.ReLU()
-        )
-        self.maxpool2 = nn.Sequential(
-            nn.MaxPool2d(2, 2)
+        self.layer3 = nn.Sequential(
+            nn.Conv2d(64, 128, 3, 1, 1), nn.ReLU(), nn.MaxPool2d(2, 2, 1) # OUT: 128 x 4 x 4
         )
         self.fc = nn.Sequential(
-            nn.Linear(192, 120), nn.ReLU(),
-            nn.Linear(120, 60), nn.ReLU(),
-            nn.Linear(60, 10)
+            nn.Linear(128 * 4 * 4, 625), nn.ReLU(), nn.Linear(625, 10)
         )
 
     def forward(self, x):
-        x = self.conv1(x)
-        x = self.maxpool1(x) # OUT: 6 x 12 x 12
-        x = self.conv2(x)
-        x = self.maxpool2(x) # OUT: 12 x 4 x 4
-        x = x.view(-1, 12 * 4 * 4)
+        
+        x = self.layer1(x)
+        x = self.layer2(x)
+        x = self.layer3(x)
+        x = x.view(x.size(0), -1) # flattening before FC
+        return self.fc(x)
+
+    def name(self):
+        return 'You are using "MyCNN"'
+
+# https://www.kaggle.com/carloalbertobarbano/vgg16-transfer-learning-pytorch
+class VGG16(nn.Module):
+    def __init__(self, num_classes = 10):
+        super(VGG16, self).__init__()
+
+        self.layer1 = nn.Sequential(
+            nn.Conv2d(1, 64, 3, 1, 1),
+            nn.BatchNorm2d(64), 
+            nn.ReLU(inplace = True), 
+            nn.MaxPool2d(2, 2)
+        )
+        self.layer2 = nn.Sequential(
+            nn.Conv2d(64, 128, 3, 1, 1),
+            nn.BatchNorm2d(128), 
+            nn.ReLU(inplace = True), 
+            nn.MaxPool2d(2,2)
+        )
+        self.layer3 = nn.Sequential(
+            nn.Conv2d(128, 256, 3, 1, 1), 
+            nn.BatchNorm2d(256),
+            nn.ReLU(inplace = True), 
+            nn.MaxPool2d(2, 2, 1)
+        )
+        # OUT: 256 x 4 x 4
+        self.fc = nn.Sequential(
+            nn.Linear(256 * 4 * 4, 4096), nn.ReLU(),
+            nn.Linear(4096, 4096), nn.ReLU(),
+            nn.Linear(4096, 10)
+        )
+
+    def forward(self, x):
+        x = self.layer1(x)
+        x = self.layer2(x)
+        x = self.layer3(x)
+        x = x.view(-1, 256 * 4 * 4)
 
         return self.fc(x)
 
@@ -133,9 +170,9 @@ class SomeOtherNet(nn.Module):
 
 
 ## training
-model = MyNeuralNetwork()
-model = SomeOtherNet() # Best val Acc: 0.7293
-model = AlexNet()
+model = LeNet5() # Best val Acc: 0.7057
+#model = VGG16() # Best val Acc: 0.8784
+#model = MyCNN() # Best val Acc: 0.7798
 
 optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
 
