@@ -1,6 +1,8 @@
 # source code inspireed by
 # https://pytorch.org/tutorials/beginner/finetuning_torchvision_models_tutorial.html#model-training-and-validation-code
 # https://discuss.pytorch.org/t/pytorch-equivalent-of-keras/29412/6
+# https://towardsdatascience.com/build-a-fashion-mnist-cnn-pytorch-style-efb297e22582
+# https://adventuresinmachinelearning.com/convolutional-neural-networks-tutorial-in-pytorch/
 
 from __future__ import print_function
 from __future__ import division
@@ -27,6 +29,7 @@ transform = transforms.Compose([
     transforms.ToTensor()
 ])
 
+# images are 28 x 28 x 1
 train_set = datasets.FashionMNIST(root=root, train=True, transform=transform, download=True)
 test_set = datasets.FashionMNIST(root=root, train=False, transform=transform, download=True)
 
@@ -53,26 +56,30 @@ data_loaders['test'] = torch.utils.data.DataLoader(
 class MyNeuralNetwork(nn.Module):
     def __init__(self):
         super(MyNeuralNetwork, self).__init__()
+        # IN: 28 x 28 x 1
         self.features1 = nn.Sequential(
             nn.Conv2d(1, 32, 3, padding = 1), nn.ReLU(),
-            nn.Conv2d(32, 32, 3, padding = 1), nn.ReLU(),
+            #nn.Conv2d(32, 32, 3, padding = 1), nn.ReLU(),
             nn.MaxPool2d(2, 2), nn.Dropout2d(0.25)
         )
+        # OUT: 14 x 14 x 32
         self.features2 = nn.Sequential(
             nn.Conv2d(32, 64, 3, padding = 1), nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding = 1), nn.ReLU(),
+            #nn.Conv2d(64, 64, 3, padding = 1), nn.ReLU(),
             nn.MaxPool2d(2, 2), nn.Dropout2d(0.25)
         )
+        # OUT: 7 * 7 * 64
         # Dense -> nn.Linear()
         self.classifier = nn.Sequential(
-            nn.Linear(128, 512), nn.ReLU(),
+            nn.Linear(32 * 14 * 14, 512), nn.ReLU(),
             nn.Linear(512, 10), nn.Softmax(dim = 1)
         )
 
     def forward(self, x):
         x = self.features1(x)
-        x = self.features2(x)
-        x = x.view(x.size(0), -1) # TODO
+        x = x.view(-1, 32 * 14 * 14) # TODO
+        #x = self.features2(x)
+        #x = x.view(-1, 64 * 7 * 7) # TODO
 
         return self.classifier(x)
 
@@ -90,9 +97,45 @@ class AlexNet(nn.Module):
     def name(self):
         return 'Inspired by AlexNet'
 
+class SomeOtherNet(nn.Module):
+    def __init__(self, num_classes = 10):
+        super(SomeOtherNet, self).__init__()
+
+        self.conv1 = nn.Sequential(
+            nn.Conv2d(1, 6, 5), nn.ReLU()
+        )
+        self.maxpool1 = nn.Sequential(
+            nn.MaxPool2d(2, 2)
+        )
+        self.conv2 = nn.Sequential(
+            nn.Conv2d(6, 12, 5), nn.ReLU()
+        )
+        self.maxpool2 = nn.Sequential(
+            nn.MaxPool2d(2, 2)
+        )
+        self.fc = nn.Sequential(
+            nn.Linear(192, 120), nn.ReLU(),
+            nn.Linear(120, 60), nn.ReLU(),
+            nn.Linear(60, 10)
+        )
+
+    def forward(self, x):
+        x = self.conv1(x)
+        x = self.maxpool1(x) # OUT: 6 x 12 x 12
+        x = self.conv2(x)
+        x = self.maxpool2(x) # OUT: 12 x 4 x 4
+        x = x.view(-1, 12 * 4 * 4)
+
+        return self.fc(x)
+
+    def name(self):
+        return 'SomeOtherNet'
+
 
 ## training
 model = MyNeuralNetwork()
+model = SomeOtherNet() # Best val Acc: 0.7293
+model = AlexNet()
 
 optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
 
