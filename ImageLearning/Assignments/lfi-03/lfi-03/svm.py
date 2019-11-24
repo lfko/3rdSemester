@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import glob
+import re
 import time
 from sklearn import svm
 
@@ -63,25 +64,41 @@ print(images_train)
 
 # 3. We use scikit-learn to train a SVM classifier - however you need to test with different kernel options to get
 # good results for our dataset.
-svm = svm.SVC(kernel = "linear", C = 1E10) # TODO use another kernel
+svm = svm.SVC(kernel = "rbf") # TODO use another kernel
 svm.fit(X_train, Y_train)
 
 # 4. We test on a variety of test images ./images/db/test/ by extracting an image descriptor
 # the same way we did for the training (except for a single image now) and use .predict()
 # to classify the image
-images_test = glob.glob(img_path + '/test/flower.jpg')
+images_test = glob.glob(img_path + '/test/*.jpg')
 print(len(images_test), 'images loaded!')
+print("\n")
 
 # exctract features of the test picture
 # TODO use defined function
 #descriptors_test = extractSIFTFeatures(keypoints, images_test[0]) # car.jpg
-sift = cv2.xfeatures2d.SIFT_create()
-descriptors_test = sift.compute(cv2.imread(images_test[0], 0), keypoints)
-print(len(descriptors_test), "descriptors for the test extracted")
+error = .0
+tp = 0
+for img in images_test:
+    true_class = re.findall('\w+.jpg', img)[0].replace('.jpg', '')
+    true_class = re.sub('\d', '', true_class)
+    print('True class:', true_class)
 
-X_test = np.empty((1, 128))
-X_test[0] = descriptors_test[1]
+    sift = cv2.xfeatures2d.SIFT_create()
+    descriptors_test = sift.compute(cv2.imread(img, 0), keypoints)
+    #print(len(descriptors_test), "descriptors for the test extracted")
 
-y_pred = svm.predict(X_test)
-# 5. output the class + corresponding name
-print(y_pred, "Class '", classes[y_pred[0]], "' predicted")
+    X_test = np.empty((1, 128))
+    X_test[0] = descriptors_test[1]
+
+    # 5. output the class + corresponding name
+    y_pred = svm.predict(X_test)
+    print(y_pred, "Class '", classes[y_pred[0]], "' predicted")
+
+    if classes[y_pred[0]] == true_class:
+        tp += 1
+    
+    error = tp/4
+    print("\n")
+
+print(error)
