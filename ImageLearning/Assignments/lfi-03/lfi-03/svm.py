@@ -17,40 +17,32 @@ from sklearn import svm
 def createKeypoints(w = 256, h = 256, kpSize = 15):
     return [cv2.KeyPoint(x, y, kpSize) for x in range(w) for y in range(h)]
 
-def extractSIFTFeatures(keypoints, images):
-    '''
-        TODO there must still be a bug here; seems images is handled as a list of strings and the length is incorrect
-    '''
-    sift = cv2.xfeatures2d.SIFT_create()
-    return [sift.compute(cv2.imread(img, 0), keypoints) for img in images]
-
 
 # 1. Implement a SIFT feature extraction for a set of training images ./images/db/train/** (see 2.3 image retrieval)
 # use 256x256 keypoints on each image with subwindow of 15x15px
+sift = cv2.xfeatures2d.SIFT_create()
 img_path = './images/db'
 images_train = glob.glob(img_path + '/train/*/*.jpg')
 print(len(images_train), 'images loaded!')
 
-t0 = time.time()
+keypoints = createKeypoints(256, 256)
 
-keypoints = createKeypoints(1, 1)
 descriptors = []
-descriptors = extractSIFTFeatures(keypoints, images_train)
+for i, img in enumerate(images_train):
+    _, des = sift.compute(cv2.imread(img, 0), keypoints)
+    descriptors.append(des)
 
-t1 = time.time()
-
-print(t1-t0)
 print(len(descriptors), "descriptors extracted!")
 
 # 2. each descriptor (set of features) need to be flattened in one vector
 # That means you need a X_train matrix containing a shape of (num_train_images, num_keypoints*num_entry_per_keypoint)
 # num_entry_per_keypoint = histogram orientations as talked about in class
 # You also need a y_train vector containing the labels encoded as integers
-X_train = np.empty((20, 128))
+X_train = np.zeros((20, 256 * 256 * 128)) # 128 because total of bin values
 for i in range(len(images_train)):
-    X_train[i] = descriptors[i][1]
+    X_train[i, :] = np.ravel(descriptors[i])
 
-#print(X_train.shape)
+print('X_train.shape: ', X_train.shape)
 #print(X_train[1,])
 
 # class encoding
@@ -60,11 +52,10 @@ for i in range(len(images_train)):
 Y_train = np.asarray([0 if img.find('car') > 0 else 1 if img.find('face') > 0 else 2 for img in images_train])
 classes = {0: 'car', 1 : 'face', 2 : 'flower'}
 print(Y_train)
-print(images_train)
 
 # 3. We use scikit-learn to train a SVM classifier - however you need to test with different kernel options to get
 # good results for our dataset.
-svm = svm.SVC(kernel = "rbf") # TODO use another kernel
+svm = svm.SVC(kernel = "linear")
 svm.fit(X_train, Y_train)
 
 # 4. We test on a variety of test images ./images/db/test/ by extracting an image descriptor
@@ -75,30 +66,22 @@ print(len(images_test), 'images loaded!')
 print("\n")
 
 # exctract features of the test picture
-# TODO use defined function
-#descriptors_test = extractSIFTFeatures(keypoints, images_test[0]) # car.jpg
-error = .0
-tp = 0
+descriptors_test = []
+true_classes = []
 for img in images_test:
     true_class = re.findall('\w+.jpg', img)[0].replace('.jpg', '')
     true_class = re.sub('\d', '', true_class)
-    print('True class:', true_class)
+    true_classes.append(true_class)
 
-    sift = cv2.xfeatures2d.SIFT_create()
-    descriptors_test = sift.compute(cv2.imread(img, 0), keypoints)
-    #print(len(descriptors_test), "descriptors for the test extracted")
+    _, des = sift.compute(cv2.imread(img, 0), keypoints)
+    descriptors_test.append(des)
 
-    X_test = np.empty((1, 128))
-    X_test[0] = descriptors_test[1]
+X_test = np.zeros((4, 256 * 256 * 128))
+for i in range(len(descriptors_test)):
+    X_test[i, :] = np.ravel(descriptors_test[i])
 
-    # 5. output the class + corresponding name
-    y_pred = svm.predict(X_test)
-    print(y_pred, "Class '", classes[y_pred[0]], "' predicted")
-
-    if classes[y_pred[0]] == true_class:
-        tp += 1
-    
-    error = tp/4
-    print("\n")
-
-print(error)
+# 5. output the class + corresponding name
+y_pred = svm.predict(X_test)
+for i, p in enumerate(y_pred):
+    print('True class:', true_classes[i])
+    print("Class '", classes[y_pred[i]], "' predicted")
