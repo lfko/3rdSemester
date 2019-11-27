@@ -18,6 +18,10 @@ loss_train_hist = []
 
 ##################################################
 ## Please implement a two layer neural network  ##
+## A3.2
+## @NB https://towardsdatascience.com/coding-a-2-layer-neural-network-from-scratch-in-python-4dd022d19fd2
+##     https://www.youtube.com/watch?v=7qYtIveJ6hU
+##     https://github.com/geeksnome/machine-learning-made-easy/blob/master/backpropogation.py
 ##################################################
 
 def relu(x):
@@ -52,7 +56,7 @@ def loss_crossentropy(activation, y_batch):
     return loss
 
 def loss_deriv_mse(activation, y_batch):
-    """derivative of the mean squared loss function"""
+    """derivative of the mean squared loss function; derivative of the loss function w.r.t. to a2 """
     dCda2 = (1 / activation.shape[0]) * (activation - y_batch)
     return dCda2
 
@@ -97,65 +101,112 @@ def setup_train():
 
 def forward(X_batch, y_batch, W1, W2, b1, b2):
     """forward pass in the neural network """
-    ### YOUR CODE ####
-    # please implement the forward pass
-    # 
-    
-    # the function should return the loss and both intermediate activations
-    #return loss, a2, a1
 
-def backward(a2, a1, X_batch, y_batch, W2):
+    m1 = torch.mm(X_batch, W1) + b1
+    a1 = relu(m1) # first activation
+    m2 = torch.mm(a1, W2) + b2
+    a2 = relu(m2) # second activation
+    loss = loss_mse(a2, y_batch) # calculate the loss
+    
+    return loss, a2, a1
+
+def backwardSimple(X_batch, y_batch, a1, a2, W1, W2):
+    """ a2 == output """
+    output_error = loss_mse(a2, y_batch) # aka loss
+    output_delta = output_error * relu_derivative(a2)
+
+    # hidden layer
+    dCda1 = torch.mm(output_delta, W2.t()) # contribution of hidden layer weights to output error
+    a1_delta = dCda1 * relu_derivative(a1)
+
+    W1 += torch.mm(X_batch.t(), a1_delta) * learning_rate
+    W2 += torch.mm(a2.t(), output_delta) * learning_rate
+
+    return W1, W2
+
+def backward(a2, a1, X_batch, y_batch, W1, W2, b1, b2):
     """backward pass in the neural network """
     # Implement the backward pass by computing
     # the derivative of the complete function
     # using the chain rule as discussed in the lecture
 
-    # please use the appropriate loss functions 
-    # YOUR CODE HERE
+    dCda2 = loss_deriv_mse(a2, y_batch) # derivative of loss function
+    m2 = torch.mm(a1, W2) + b2
+    dCdm2 = relu_derivative(m2)
+
+    dm2da1 = W2 # impact of a1 on m2
+    da1dm1 = relu_derivative(torch.mm(X_batch, W1) + b1)
+    dCda1 = torch.mm(W2.t(), dCdm2)
+    dCdm1 = torch.mm(dCda1, da1dm1)
+
+    dCdW1 = torch.mm(X_batch, dCdm1)
+
+#    dCdW2 = torch.mm(dCda2, W2.t()) # derivative of loss w.r.t W2
+
+    #dCda1 =
+    #dCdW1 =
+     
+
     
     # function should return 4 derivatives with respect to
     # W1, W2, b1, b2
-    # return dCdW1, dCdW2, dCdb1, dCdb2
+    return dCdW1, dCdW2, dCdb1, dCdb2
 
-def train(X_train, y_train):
+def train(X_train, Y_train):
     """ train procedure """
     # for simplicity of this execise you don't need to find useful hyperparameter
     # I've done this for you already and every test image should work for the
     # given very small trainings database and the following parameters.
     h = 1500
     std = 0.001
-    # YOUR CODE HERE
+    inSize = nn_img_size * nn_img_size
+    print('inSize', inSize)
+ 
     # initialize W1, W2, b1, b2 randomly
     # Note: W1, W2 should be scaled by variable std
-    
+    W1 = std * torch.randn(inSize, h)
+    W2 = std * torch.randn(h, num_classes)
+    b1, b2 = torch.randn(1, h), torch.randn(1, num_classes)
+
     # run for num_epochs
     for i in range(num_epochs):
 
         X_batch = None
-        y_batch = None
+        Y_batch = None
 
         # use only a batch of batch_size of the training images in each run
         # sample the batch images randomly from the training set
-        # YOUR CODE HERE
-        
+        idx = torch.randint(low = 0, high = 20, size = (batch_size,))
+        print(idx)
+        X_batch = X_train[idx]
+        Y_batch = Y_train[idx]
+
         # forward pass for two-layer neural network using ReLU as activation function
+        loss, a2, a1 = forward(X_batch, Y_batch, W1, W2, b1, b2)
         
         # add loss to loss_train_hist for plotting
+        loss_train_hist.append(loss)
         
         #if i % 10 == 0:
         #    print("iteration %d: loss %f" % (i, loss))
 
-        # backward pass 
-        
+        # backward pass
+        #error_out = loss * relu_derivative(a2)
+        #dCdW1, dCdW2, dCdb1, dCdb2 = backward(a2, a1, X_batch, Y_batch, W1, W2, b1, b2) 
+        W1, W2 = backwardSimple(X_batch, Y_batch, a1, a2, W1, W2)    
         # print("dCdb2.shape:", dCdb2.shape, dCdb1.shape)
 
         # depending on the derivatives of W1, and W2 regaring the cost/loss
         # we need to adapt the values in the negative direction of the 
         # gradient decreasing towards the minimum
         # we weight the gradient by a learning rate
-        # YOUR CODE HERE
+        #W2 += torch.mm(a1.t(), ) * learning_rate
+        #W1 += torch.mm(X_batch.t(), ) * learning_rate
+
+        #b2 += .sum() * learning_rate
+        #b1 += .sum() * learning_rate
         
-    # return W1, W2, b1, b2
+    return W1, W2, b1, b2
 
 X_train, y_train = setup_train()
 W1, W2, b1, b2 = train(X_train, y_train)
