@@ -17,3 +17,26 @@
 - https://machinelearningmastery.com/how-to-know-if-your-machine-learning-model-has-good-performance/
 - (On designing data products) https://medium.com/upwork-datascience/managing-data-science-with-v2mom-scrum-and-cross-functional-squads-655b08cf828b
 - (Rules of Machine Learning) https://developers.google.com/machine-learning/guides/rules-of-ml
+
+
+ttps://machinelearningmastery.com/how-to-get-baseline-results-and-why-they-matter/
+https://machinelearningmastery.com/why-you-should-be-spot-checking-algorithms-on-your-machine-learning-problems/
+https://machinelearningmastery.com/how-to-know-if-your-machine-learning-model-has-good-performance/
+https://medium.com/upwork-datascience/managing-data-science-with-v2mom-scrum-and-cross-functional-squads-655b08cf828b
+https://towardsdatascience.com/first-create-a-common-sense-baseline-e66dbf8a8a47
+https://blog.insightdatascience.com/always-start-with-a-stupid-model-no-exceptions-3a22314b9aaa
+https://towardsdatascience.com/beating-state-of-the-art-by-tuning-baselines-74ec6ad2cd59
+https://developers.google.com/machine-learning/guides/rules-of-ml
+https://www.jeremyjordan.me/ml-projects-guide/
+https://medium.com/@i.m.vivek/machine-learning-why-baseline-is-important-cc63c857a56d
+https://towardsdatascience.com/machine-learning-general-process-8f1b510bd8af
+https://developers.google.com/machine-learning/glossary
+
+
+# Remarks for the presentation
+- a basis for comparison of results, a meaningful reference point
+- when starting collecting results from different algorithms a baseline can support in deciding whether they are adding value
+- then you might want to redefine your data set, features, hyperparameters et cetera
+- check why your advanced model fails (look at the baseline)
+- consider if implementing a more complex model is worth the effort in the long-term
+- Google's ML rules: "Some teams aim for a "neutral" first launch: a first launch that explicitly de­prioritizes machine learning gains, to avoid getting distracted"
