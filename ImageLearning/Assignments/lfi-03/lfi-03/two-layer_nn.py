@@ -22,6 +22,7 @@ loss_train_hist = []
 ## @NB https://towardsdatascience.com/coding-a-2-layer-neural-network-from-scratch-in-python-4dd022d19fd2
 ##     https://www.youtube.com/watch?v=7qYtIveJ6hU
 ##     https://github.com/geeksnome/machine-learning-made-easy/blob/master/backpropogation.py
+##     https://medium.com/@pdquant/all-the-backpropagation-derivatives-d5275f727f60
 ##################################################
 
 def relu(x):
@@ -124,28 +125,30 @@ def backwardSimple(X_batch, y_batch, a1, a2, W1, W2):
 
     return W1, W2
 
-def backward(a2, a1, X_batch, y_batch, W1, W2, b1, b2):
+def backward(a2, a1, X_batch, y_batch, W2):
     """backward pass in the neural network """
+    print('\n')
+    print('<< Backward Propagation >>')
     # Implement the backward pass by computing
     # the derivative of the complete function
     # using the chain rule as discussed in the lecture
-
-    dCda2 = loss_deriv_mse(a2, y_batch) # derivative of loss function
     m2 = torch.mm(a1, W2) + b2
-    dCdm2 = relu_derivative(m2)
+    m1 = torch.mm(X_batch, W1) + b1
 
-    dm2da1 = W2 # impact of a1 on m2
-    da1dm1 = relu_derivative(torch.mm(X_batch, W1) + b1)
-    dCda1 = torch.mm(W2.t(), dCdm2)
-    dCdm1 = torch.mm(dCda1, da1dm1)
+    dCda2 = loss_deriv_mse(a2, y_batch) # derivative of loss function; dLoss_Yh
+    print('dCda2.shape', dCda2.shape)
 
-    dCdW1 = torch.mm(X_batch, dCdm1)
+    dCdm2 = dCda2 * relu_derivative(m2) # dLoss_Z2
+    print('dCdm2.shape', dCdm2.shape)
 
-#    dCdW2 = torch.mm(dCda2, W2.t()) # derivative of loss w.r.t W2
+    dCda1 = torch.mm(W2, dCdm2.T) # dLoss_A1
 
-    #dCda1 =
-    #dCdW1 =
-     
+    #dCdW1 = torch.mm(X_batch.T, torch.mm(dCda1.T, relu_derivative(m1).T))
+    dCWd1 = W1 # derivate of the weight W1 w.r.t. the loss C
+    dCdW2 = torch.mm(dCda2, a1.T)
+    
+    dCdb1 = dCda1 * relu_derivative(m1).T # dLoss_B1
+    dCdb2 = torch.mm(dCda2.T, a1)  # dLoss_B2
 
     
     # function should return 4 derivatives with respect to
@@ -192,19 +195,20 @@ def train(X_train, Y_train):
 
         # backward pass
         #error_out = loss * relu_derivative(a2)
-        #dCdW1, dCdW2, dCdb1, dCdb2 = backward(a2, a1, X_batch, Y_batch, W1, W2, b1, b2) 
-        W1, W2 = backwardSimple(X_batch, Y_batch, a1, a2, W1, W2)    
-        # print("dCdb2.shape:", dCdb2.shape, dCdb1.shape)
+        dCdW1, dCdW2, dCdb1, dCdb2 = backward(a2, a1, X_batch, Y_batch, W1, W2, b1, b2) 
+        #W1, W2 = backwardSimple(X_batch, Y_batch, a1, a2, W1, W2)    
+        print("dCdW1.shape, dCdW2.shape, dCdb1.shape, dCdb2.shape", dCdW1.shape, dCdW2.shape, dCdb1.shape, dCdb2.shape)
 
         # depending on the derivatives of W1, and W2 regaring the cost/loss
         # we need to adapt the values in the negative direction of the 
         # gradient decreasing towards the minimum
         # we weight the gradient by a learning rate
-        #W2 += torch.mm(a1.t(), ) * learning_rate
-        #W1 += torch.mm(X_batch.t(), ) * learning_rate
 
-        #b2 += .sum() * learning_rate
-        #b1 += .sum() * learning_rate
+        W2 += dCdW2 * learning_rate
+        W1 += dCdW1 * learning_rate
+
+        b2 += dCdb2 * learning_rate
+        b1 += dCdb1 * learning_rate
         
     return W1, W2, b1, b2
 
