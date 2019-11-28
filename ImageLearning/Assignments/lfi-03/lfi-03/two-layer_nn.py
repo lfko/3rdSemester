@@ -124,16 +124,17 @@ def backward(X_batch, y_batch, W1, W2, a1, a2, b1, b2):
     dA1dZ1 = relu_derivative(Z1)
     dZ1dW1 = X_batch
     dZ2dW2 = a1 # computed in forward pass
-    dCdA1 = torch.mm(W2, dCdA2.T)
-    dCdZ1 = dCdA1 * relu_derivative(Z1)
+    #dCdA1 = torch.mm(W2.T, dCdA2)
+    #dCdZ1 = dCdA1 * relu_derivative(Z1)
     tmp = torch.mm(dCdA2, dZ2dA1.T) * dA1dZ1
+    tmp2 = torch.mm(dCdA2, dZ2dA1.T) * dA1dZ1
 
-    dCdW1 = torch.mm(dZ1dW1.T, tmp)
-    dCdW2 = torch.mm(dZ2dW2.T, dCdA2)
-    dCdb1 = dCdZ1  #torch.mm(W2, dCdA2.T) * relu_derivative(Z1)
-    dCdb2 = dCdA2
+    dCdW1 = torch.mm(dZ1dW1.T, tmp) # weight before hidden layer
+    dCdW2 = torch.mm(dZ2dW2.T, dCdA2) # weight before output layer
+    dCdb1 = torch.sum(tmp2) # torch.mm(W2, dCdA2.T) * relu_derivative(Z1)
+    dCdb2 = torch.sum(dCdA2) # bias before the output layer
 
-    return dCdW1, dCdW2, dCdb1, dCdb2
+    return dCdW1, dCdW2, (1/X_batch.shape[0]) * dCdb1, (1/a2.shape[0]) * dCdb2
 
 def train(X_train, Y_train):
     """ train procedure """
@@ -160,7 +161,6 @@ def train(X_train, Y_train):
         # use only a batch of batch_size of the training images in each run
         # sample the batch images randomly from the training set
         idx = torch.randint(low = 0, high = 20, size = (batch_size,))
-        print(idx)
         X_batch = X_train[idx]
         Y_batch = Y_train[idx]
 
@@ -174,9 +174,7 @@ def train(X_train, Y_train):
         #    print("iteration %d: loss %f" % (i, loss))
 
         # backward pass
-        #error_out = loss * relu_derivative(a2)
         dCdW1, dCdW2, dCdb1, dCdb2 = backward(X_batch, Y_batch, W1, W2, a1, a2, b1, b2)
-        print("dCdW1.shape, dCdW2.shape, dCdb1.shape, dCdb2.shape", dCdW1.shape, dCdW2.shape, dCdb1.shape, dCdb2.shape)
 
         # depending on the derivatives of W1, and W2 regaring the cost/loss
         # we need to adapt the values in the negative direction of the 
@@ -185,13 +183,19 @@ def train(X_train, Y_train):
 
         W2 += dCdW2 * learning_rate
         W1 += dCdW1 * learning_rate
+        #print(W1.shape)
+        #print(W2.shape)
 
         b2 += dCdb2 * learning_rate
         b1 += dCdb1 * learning_rate
+
+        #print(b1.shape)
+        #print(b2.shape)
         
     return W1, W2, b1, b2
 
 X_train, y_train = setup_train()
+print('before train: ', y_train)
 W1, W2, b1, b2 = train(X_train, y_train)
 
 # predict the test images, load all test images and 
@@ -200,14 +204,18 @@ test_images = []
 test_images.append( (cv2.imread('./images/db/test/flower.jpg', cv2.IMREAD_GRAYSCALE), 1) )
 test_images.append( (cv2.imread('./images/db/test/car.jpg', cv2.IMREAD_GRAYSCALE), 0) )
 test_images.append( (cv2.imread('./images/db/test/face.jpg', cv2.IMREAD_GRAYSCALE), 2) )
-
+y_test = torch.zeros((3, num_classes))
+y_test[0] = torch.Tensor([0, 1, 0])
+y_test[1] = torch.Tensor([1, 0, 0])
+y_test[2] = torch.Tensor([0, 0, 1])
+print(y_test)
 for ti in test_images:
+#    print(ti[0], "\n", ti[1])
     resized_ti = cv2.resize(ti[0], (nn_img_size, nn_img_size) , interpolation=cv2.INTER_AREA)
-    x_test = resized_ti.reshape(1,-1)
-    # YOUR CODE HERE 
-    # convert test images to pytorch
-    # do forward pass depending mse or softmax
-    # print("Test output (values / pred_id / true_id):", a2_test, np.argmax(a2_test), ti[1])
+    X_test = torch.from_numpy(resized_ti.reshape(1,-1))
+    loss_test, a1_test, a2_test = forward(X_test, y_test, W1, W2, b1, b2)
+    print("Test output (values / pred_id / true_id):", a2_test, np.argmax(a2_test), ti[1])
+    
 
 # print("------------------------------------")
 # print("Test model output Weights:", W1, W2)
