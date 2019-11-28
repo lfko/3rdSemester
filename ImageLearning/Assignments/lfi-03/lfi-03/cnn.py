@@ -36,9 +36,9 @@ test_set = datasets.FashionMNIST(root=root, train=False, transform=transform, do
 # hyperparameter
 # TODO Find good hyperparameters
 batch_size = 64
-num_epochs = 5
+num_epochs = 15
 learning_rate = .001
-momentum = .5
+momentum = .05
 
 # Load train and test data
 data_loaders = {}
@@ -53,50 +53,56 @@ data_loaders['test'] = torch.utils.data.DataLoader(
 
 # implement your own NNs
 
-class LeNet5(nn.Module):
+class KindOfLeNet(nn.Module):
     def __init__(self):
-        super(LeNet5, self).__init__()
+        super(KindOfLeNet, self).__init__()
         # IN: 28 x 28 x 1
         self.l1 = nn.Sequential(
-            nn.Conv2d(1, 6, 5, stride = 1, padding = 0), nn.ReLU(),
-            nn.BatchNorm2d(6)
-        )
-        # OUT: 26 x 26 x 6
-        self.l2 = nn.Sequential(
-            nn.AvgPool2d(2, 2)
+            nn.Conv2d(1, 6, 3, stride = 1, padding = 0), 
+            nn.Tanh(),
+            nn.MaxPool2d(2, 2)
         )
         # OUT: 13 x 13 x 6
-        self.l3 = nn.Sequential(
-            nn.Conv2d(6, 16, 5, stride = 1, padding = 0)
+        self.l2 = nn.Sequential(
+            nn.Conv2d(6, 16, 3, stride = 1, padding = 0), 
+            nn.Tanh(),
+            nn.MaxPool2d(2, 2)
         )
+        # OUT: 7 x 7 x 16
+        #self.l3 = nn.Sequential(
+        #    nn.Conv2d(6, 16, 3, stride = 1, padding = 0), 
+        #    nn.Tanh()
+        #)
         # OUT: 10 x 10 x 16
-        self.l4 = nn.Sequential(
-            nn.AvgPool2d(2, 2)
-        )
+        #self.l4 = nn.Sequential(
+        #    nn.AvgPool2d(2, 2)
+        #)
         # OUT: 5 x 5 x 16
-        self.l5 = nn.Sequential(
-            nn.Conv2d(16, 120, 3), nn.ReLU()
-        )
+        #self.l5 = nn.Sequential(
+        #    nn.Conv2d(16, 120, 3), nn.ReLU()
+        #)
         # OUT: 6 x 6 x 120
         
         self.classifier = nn.Sequential(
-            nn.Linear(5 * 5 * 16, 120), nn.ReLU(),
-            nn.Linear(120, 84), nn.ReLU(),
+            nn.Linear(5 * 5 * 16, 64), nn.Tanh(),
+            nn.Linear(64, 120), nn.Tanh(),
+            nn.Linear(120, 84), nn.Tanh(),
             nn.Linear(84, 10), nn.ReLU()
         )
 
     def forward(self, x):
         x = self.l1(x)
         x = self.l2(x)
-        x = self.l3(x)
-        x = self.l4(x)
+        #x = self.l3(x)
+        #x = self.l4(x)
         #x = self.l5(x)
         #x = x.view(5 * 5 * 16, -1) # TODO
-        x = x.reshape(x.size(0), -1)
+        #print(x.size())
+        x = x.view(x.size(0), -1)
         return self.classifier(x)
 
     def name(self):
-        return "MyNeuralNetwork"
+        return "KindOfLeNet"
 
 # http://personal.ie.cuhk.edu.hk/~ccloy/files/aaai_2015_target_coding_supp.pdf
 class MyCNN(nn.Module):
@@ -170,7 +176,7 @@ class VGG16(nn.Module):
 
 
 ## training
-model = LeNet5() # Best val Acc: 0.7057
+model = KindOfLeNet() # Best val Acc: 0.7057
 #model = VGG16() # Best val Acc: 0.8784
 #model = MyCNN() # Best val Acc: 0.7798
 

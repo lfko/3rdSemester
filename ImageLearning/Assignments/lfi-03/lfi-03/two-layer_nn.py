@@ -3,6 +3,7 @@ import cv2
 import glob
 import matplotlib.pyplot as plt
 import torch
+import math
 
 device = torch.device('cpu')
 
@@ -148,8 +149,9 @@ def train(X_train, Y_train):
  
     # initialize W1, W2, b1, b2 randomly
     # Note: W1, W2 should be scaled by variable std
-    W1 = std * torch.randn(inSize, h)
-    W2 = std * torch.randn(h, num_classes)
+    # TODO He / Xaver initialisation
+    W1 = torch.randn(inSize, h) * math.sqrt(2 / h)
+    W2 = torch.randn(h, num_classes) * math.sqrt(2 / h)
     b1, b2 = torch.randn(1, h), torch.randn(1, num_classes)
 
     # run for num_epochs
