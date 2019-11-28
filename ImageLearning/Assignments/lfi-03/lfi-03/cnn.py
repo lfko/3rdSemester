@@ -20,7 +20,7 @@ print("PyTorch Version: ",torch.__version__)
 print("Torchvision Version: ",torchvision.__version__)
 
 use_cuda = torch.cuda.is_available()
-
+device = torch.device("cuda" if use_cuda else "cpu")
 
 root = './data'
 
@@ -35,10 +35,10 @@ test_set = datasets.FashionMNIST(root=root, train=False, transform=transform, do
 
 # hyperparameter
 # TODO Find good hyperparameters
-batch_size = 64
+batch_size = 32
 num_epochs = 15
 learning_rate = .001
-momentum = .05
+momentum = .9
 
 # Load train and test data
 data_loaders = {}
@@ -51,82 +51,60 @@ data_loaders['test'] = torch.utils.data.DataLoader(
                 batch_size=batch_size,
                 shuffle=False)
 
-# implement your own NNs
-
-class KindOfLeNet(nn.Module):
+# implement your own NNs 
+# https://pramodmurthy.com/blog/2019/03/25/tutorial_001_mlp_mnist_pytorch.html
+class MyOtherNet(nn.Module):
     def __init__(self):
-        super(KindOfLeNet, self).__init__()
+        super(MyOtherNet, self).__init__()
         # IN: 28 x 28 x 1
         self.l1 = nn.Sequential(
-            nn.Conv2d(1, 6, 3, stride = 1, padding = 0), 
-            nn.Tanh(),
+            nn.Conv2d(1, 20, 5, 1), 
+            nn.ReLU(),
             nn.MaxPool2d(2, 2)
         )
-        # OUT: 13 x 13 x 6
+        # OUT: 13 x 13 x 20
         self.l2 = nn.Sequential(
-            nn.Conv2d(6, 16, 3, stride = 1, padding = 0), 
-            nn.Tanh(),
+            nn.Conv2d(20, 50, 5, 1), 
+            nn.ReLU(),
             nn.MaxPool2d(2, 2)
         )
-        # OUT: 7 x 7 x 16
-        #self.l3 = nn.Sequential(
-        #    nn.Conv2d(6, 16, 3, stride = 1, padding = 0), 
-        #    nn.Tanh()
-        #)
-        # OUT: 10 x 10 x 16
-        #self.l4 = nn.Sequential(
-        #    nn.AvgPool2d(2, 2)
-        #)
-        # OUT: 5 x 5 x 16
-        #self.l5 = nn.Sequential(
-        #    nn.Conv2d(16, 120, 3), nn.ReLU()
-        #)
-        # OUT: 6 x 6 x 120
         
         self.classifier = nn.Sequential(
-            nn.Linear(5 * 5 * 16, 64), nn.Tanh(),
-            nn.Linear(64, 120), nn.Tanh(),
-            nn.Linear(120, 84), nn.Tanh(),
-            nn.Linear(84, 10), nn.ReLU()
+            nn.Linear(4 * 4 * 50, 500), nn.ReLU(),
+            nn.Linear(500, 10)
         )
 
     def forward(self, x):
         x = self.l1(x)
         x = self.l2(x)
-        #x = self.l3(x)
-        #x = self.l4(x)
-        #x = self.l5(x)
-        #x = x.view(5 * 5 * 16, -1) # TODO
-        #print(x.size())
-        x = x.view(x.size(0), -1)
-        return self.classifier(x)
+        x = x.view(-1, 4 * 4 * 50)
+        return F.log_softmax(self.classifier(x), dim = 1)
 
     def name(self):
-        return "KindOfLeNet"
+        return "MyOtherNet"
 
 # http://personal.ie.cuhk.edu.hk/~ccloy/files/aaai_2015_target_coding_supp.pdf
+# https://medium.com/ml2vec/intro-to-pytorch-with-image-classification-on-a-fashion-clothes-dataset-e589682df0c5
 class MyCNN(nn.Module):
     def __init__(self, classes = 10):
         super(MyCNN, self).__init__()
 
         self.layer1 = nn.Sequential(
-            nn.Conv2d(1, 32, 5, 1, 1), nn.ReLU(), nn.MaxPool2d(2, 2) # OUT: 32 x 14 x 14
+            nn.Conv2d(1, 16, 5, padding = 2), nn.ReLU(),
+            nn.MaxPool2d(2) # OUT: 16 * 14 * 14
         )
         self.layer2 = nn.Sequential(
-            nn.Conv2d(32, 64, 3, 1, 1), nn.ReLU(), nn.MaxPool2d(2, 2) # OUT: 64 x 7 x 7
-        )
-        self.layer3 = nn.Sequential(
-            nn.Conv2d(64, 128, 3, 1, 1), nn.ReLU(), nn.MaxPool2d(2, 2, 1) # OUT: 128 x 4 x 4
+            nn.Conv2d(16, 32, 5, padding = 2), nn.ReLU(), 
+            nn.MaxPool2d(2) # OUT: 32 * 7 * 7
         )
         self.fc = nn.Sequential(
-            nn.Linear(128 * 4 * 4, 625), nn.ReLU(), nn.Linear(625, 10)
+            nn.Linear(7 * 7 * 32, 10)
         )
 
     def forward(self, x):
         
         x = self.layer1(x)
         x = self.layer2(x)
-        x = self.layer3(x)
         x = x.view(x.size(0), -1) # flattening before FC
         return self.fc(x)
 
@@ -134,6 +112,7 @@ class MyCNN(nn.Module):
         return 'You are using "MyCNN"'
 
 # https://www.kaggle.com/carloalbertobarbano/vgg16-transfer-learning-pytorch
+# Well, not exactly VGG16
 class VGG16(nn.Module):
     def __init__(self, num_classes = 10):
         super(VGG16, self).__init__()
@@ -176,9 +155,9 @@ class VGG16(nn.Module):
 
 
 ## training
-model = KindOfLeNet() # Best val Acc: 0.7057
+#model = MyOtherNet() # Best val Acc: 0.889400
 #model = VGG16() # Best val Acc: 0.8784
-#model = MyCNN() # Best val Acc: 0.7798
+model = MyCNN() # Best val Acc: 0.887500
 
 optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
 
