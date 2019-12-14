@@ -48,25 +48,71 @@ def load_images(path: str, file_ending: str=".png") -> (list, int, int):
 class Autoencoder(nn.Module):
     def __init__(self):
         super(Autoencoder, self).__init__()
-        # TODO YOUR CODE HERE
+        '''
+        self.encoder = nn.Sequential(
+            #nn.Linear(1 * 96 * 118, 512), nn.ReLU(inplace = True),
+            nn.Conv2d(in_channels = 1, out_channels = 16, kernel_size = 3, padding = 1, stride = 1), 
+            nn.ReLU(inplace = True),
+            nn.MaxPool2d(2, 2),
+            nn.Conv2d(16, 8, 3, 1, 1),
+            nn.ReLU(inplace = True),
+            nn.MaxPool2d(2, 2),
+            nn.Conv2d(8, 8, 3, 1, 1), 
+            nn.ReLU(inplace = True),
+            nn.MaxPool2d(2, 2)
+        )
+
+        self.decoder = nn.Sequential(
+            nn.Conv2d(8, 8, 3, 1, 1), nn.ReLU(inplace = True),
+            nn.Upsample(2, 2),
+            nn.Conv2d(8, 8, 3, 1, 1), nn.ReLU(inplace = True),
+            nn.Upsample(2, 2),
+            nn.Conv2d(8, 16, 3, 1, 1), nn.ReLU(inplace = True),
+            nn.Upsample(2, 2),
+            nn.Conv2d(16, 1, 3, 1, 1) # should restore the input image
+        )
+        '''
+        self.encoder = nn.Sequential(
+            nn.Linear(98 * 116, 512), nn.ReLU(inplace = True),
+            nn.Linear(512, 64), nn.ReLU(inplace = True),
+            nn.Linear(64, 16), nn.ReLU(inplace = True),
+        )
+        self.decoder = nn.Sequential(
+            nn.Linear(16, 128), nn.ReLU(inplace = True),
+            nn.Linear(128, 256), nn.ReLU(inplace = True),
+            nn.Linear(256, 98 * 116),
+        )
 
     def forward(self, x):
-        # TODO YOUR CODE HERE
+        in_size = x.size(0)
+        print(in_size)
+        #x = x.view(1, -1)
+
+        x = self.encoder(x)
+        x = self.decoder(x)
         return x
 
 
 
 if __name__ == '__main__':
 
-    images, x, y = load_images('./data/train/')
+    # pictures should be 98x116
+    images, x, y = load_images('../data/train/')
 
     # setup data matrix
     D = np.zeros((len(images), images[0].size), dtype=np.float32)
+    mean_data = np.mean(D)
     for i in range(len(images)):
-        D[i, :] = images[i].flatten()
+        D[i, :] = images[i].flatten() # every image is a 11368 long vector now
 
-    # 1. calculate and subtract mean to center the data in D
-    # TODO YOUR CODE HERE
+    for i in range(D.shape[0]):
+        D[i, :] -= mean_data
+
+    #print('before: ', D[0])
+    #print('mean:', np.mean(D))
+    #D = D - np.mean(D)
+    #print('after: ', D[0])
+    #print(D.shape)
 
     num_epochs = 2000
     batch_size = 50
@@ -92,12 +138,12 @@ if __name__ == '__main__':
         optimizer.step()
         # ===================log========================
         print('epoch [{}/{}], loss:{:.4f}, MSE_loss:{:.4f}'
-              .format(epoch + 1, num_epochs, loss.data[0], MSE_loss.data[0]))
+              .format(epoch + 1, num_epochs, loss.data, MSE_loss.data))
 
     # now we use the nn model to reconstruct test images
     # and measure their reconstruction error
 
-    images_test, x, y = load_images('./data/test/')
+    images_test, x, y = load_images('../data/test/')
     D_test = np.zeros((len(images_test), images_test[0].size), dtype=np.float32)
     for i in range(len(images_test)):
         D_test[i, :] = images_test[i].flatten()
@@ -111,15 +157,17 @@ if __name__ == '__main__':
     for i, test_image in enumerate(images_test):
 
         # evaluate the model using data_test samples i
-        # pred = ...
+        img_reconst = model(data_test[i])
+        img_reconst = img_reconst.data.numpy()
+        img_reconst += mean_data
         # add the mean to the predicted/reconstructed image
         # and reshape to size (116,98)
-        # TODO YOUR CODE HERE
-        pass
+        img_reconst = img_reconst.reshape((116, 98))
+
         # uncomment
-        #error = np.linalg.norm(images_test[i] - img_reconst)
-        #errors.append(error)
-        #print("reconstruction error: ", error)
+        error = np.linalg.norm(images_test[i] - img_reconst)
+        errors.append(error)
+        print("reconstruction error: ", error)
 
     grid = plt.GridSpec(2, 9)
 
