@@ -83,9 +83,9 @@ while(True):
         frame = cv2.Canny(frame, 100, 200, L2gradient = True)
 
     if mode == 5:
-        # Thresholding Gaussian, 255 max value, either-or threshold, 50 pixel vicinity for the calculation
+        # Thresholding Gaussian, 255 max value, either-or threshold, 11 block size
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        frame = cv2.adaptiveThreshold(frame, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 50, 1)
+        frame = cv2.adaptiveThreshold(frame, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 1, 1)
     
     if mode == 6:
         # Thresholding Otsu, 255 max value, either-or threshold

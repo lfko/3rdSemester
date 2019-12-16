@@ -10,7 +10,7 @@ device = torch.device('cpu')
 nn_img_size = 32
 num_classes = 3
 learning_rate = 0.0001
-num_epochs = 500
+num_epochs = 300
 batch_size = 4
 
 loss_mode = 'crossentropy' 
@@ -85,7 +85,7 @@ def setup_train():
     counter = 0
     for (label, fnames) in enumerate(train_images):
         for fname in fnames:
-            print(label, fname)
+            #print(label, fname)
             img = cv2.imread(fname, cv2.IMREAD_GRAYSCALE)
             img = cv2.resize(img, (nn_img_size, nn_img_size) , interpolation=cv2.INTER_AREA)
 
@@ -109,7 +109,8 @@ def forward(X_batch, y_batch, W1, W2, b1, b2):
     m2 = torch.mm(a1, W2) + b2
     a2 = relu(m2) # second activation
     loss = loss_mse(a2, y_batch) # calculate the loss
-    
+    #loss = loss_crossentropy(a2, y_batch)
+
     return loss, a2, a1
 
 def backward(X_batch, y_batch, W1, W2, a1, a2, b1, b2):
@@ -119,7 +120,8 @@ def backward(X_batch, y_batch, W1, W2, a1, a2, b1, b2):
     Z1 = torch.mm(X_batch, W1) + b1
     Z2 = torch.mm(a1, W2) + b2
 
-    dCdA2 = loss_deriv_mse(a2, y_batch) # loss derivative w.r.t. activation before; dCdZ2
+    dCdA2 = loss_deriv_mse(a2, y_batch) # loss derivative w.r.t. activation before; dCdZ2; MSE
+    #dCdA2 = loss_deriv_crossentropy(a2, y_batch) # Loss XEntropy
     #dA2dZ2 = relu_derivative(Z2) # activation derivative w.r.t. hidden layer output
     dZ2dA1 = W2
     dA1dZ1 = relu_derivative(Z1)
@@ -135,7 +137,7 @@ def backward(X_batch, y_batch, W1, W2, a1, a2, b1, b2):
     dCdb1 = torch.sum(tmp2) # torch.mm(W2, dCdA2.T) * relu_derivative(Z1)
     dCdb2 = torch.sum(dCdA2) # bias before the output layer
 
-    return dCdW1, dCdW2, (1/X_batch.shape[0]) * dCdb1, (1/a2.shape[0]) * dCdb2
+    return dCdW1, dCdW2, dCdb1, dCdb2
 
 def train(X_train, Y_train):
     """ train procedure """
@@ -150,9 +152,9 @@ def train(X_train, Y_train):
     # initialize W1, W2, b1, b2 randomly
     # Note: W1, W2 should be scaled by variable std
     # TODO He / Xaver initialisation
-    W1 = torch.randn(inSize, h) * math.sqrt(2 / h)
-    W2 = torch.randn(h, num_classes) * math.sqrt(2 / h)
-    b1, b2 = torch.randn(1, h), torch.randn(1, num_classes)
+    W1 = torch.randn(inSize, h) * std
+    W2 = torch.randn(h, num_classes) * std
+    b1, b2 = torch.randn(1, h) * std, torch.randn(1, num_classes) * std
 
     # run for num_epochs
     for i in range(num_epochs):
@@ -177,19 +179,20 @@ def train(X_train, Y_train):
 
         # backward pass
         dCdW1, dCdW2, dCdb1, dCdb2 = backward(X_batch, Y_batch, W1, W2, a1, a2, b1, b2)
+        #print(dCdW1, dCdW2, dCdb1, dCdb2)
 
         # depending on the derivatives of W1, and W2 regaring the cost/loss
         # we need to adapt the values in the negative direction of the 
         # gradient decreasing towards the minimum
         # we weight the gradient by a learning rate
 
-        W2 += dCdW2 * learning_rate
-        W1 += dCdW1 * learning_rate
+        W2 -= dCdW2 * learning_rate
+        W1 -= dCdW1 * learning_rate
         #print(W1.shape)
         #print(W2.shape)
 
-        b2 += dCdb2 * learning_rate
-        b1 += dCdb1 * learning_rate
+        b2 -= dCdb2 * learning_rate
+        b1 -= dCdb1 * learning_rate
 
         #print(b1.shape)
         #print(b2.shape)
@@ -197,7 +200,6 @@ def train(X_train, Y_train):
     return W1, W2, b1, b2
 
 X_train, y_train = setup_train()
-print('before train: ', y_train)
 W1, W2, b1, b2 = train(X_train, y_train)
 
 # predict the test images, load all test images and 
@@ -210,18 +212,18 @@ y_test = torch.zeros((3, num_classes))
 y_test[0] = torch.Tensor([0, 1, 0])
 y_test[1] = torch.Tensor([1, 0, 0])
 y_test[2] = torch.Tensor([0, 0, 1])
-print(y_test)
+
 for ti in test_images:
 #    print(ti[0], "\n", ti[1])
     resized_ti = cv2.resize(ti[0], (nn_img_size, nn_img_size) , interpolation=cv2.INTER_AREA)
-    X_test = torch.from_numpy(resized_ti.reshape(1,-1))
+    X_test = torch.from_numpy(resized_ti.reshape(1,-1).astype(np.float32))
     loss_test, a1_test, a2_test = forward(X_test, y_test, W1, W2, b1, b2)
-    print("Test output (values / pred_id / true_id):", a2_test, np.argmax(a2_test), ti[1])
+    print("Test output (pred_id / true_id):", np.argmax(a2_test), ti[1])
     
 
-# print("------------------------------------")
-# print("Test model output Weights:", W1, W2)
-# print("Test model output bias:", b1, b2)
+print("------------------------------------")
+#print("Test model output Weights:", W1, W2)
+#print("Test model output bias:", b1, b2)
 
 
 plt.title("Training Loss vs. Number of Training Epochs")
