@@ -1,0 +1,320 @@
+Q1:
+ What is an example of outbound open innovation?
+Wählen Sie eine Antwort:
+1. Buying patents
+2. Cross license
+3. Acquire a competitor
+4. Selling patents x
+
+Q2:
+ Path dependency ends in…
+Wählen Sie eine Antwort:
+1. new perspectives
+2. broad set of choices
+3. new partners
+4. lock-in x
+
+Q3:
+ A civil law company (GbR) requires…
+Wählen Sie eine Antwort:
+1. 5 partners
+2. two partners x
+3. 25000 € starting capital
+4. one partner
+
+Q4:
+ The broader the leadership span, …
+Wählen Sie eine Antwort:
+1. the more old-fashiond this organization is.
+2. the higher the number of management levels
+3. the lesser the number of management levels x
+4. does not have an impact
+
+Q5:
+ What is innovation by trigger?
+Wählen Sie eine Antwort:
+1. Organisational innovation
+2. Product innovation
+3. Process innovation
+4. Pull innovation x
+
+Q6:
+ What is the leverage effect?
+Wählen Sie eine Antwort:
+1. Return on equity increases as long as interest rates on debt capital are lower x
+2. Less debt capital always leads to higher return on equity
+3. Return on equity increases as long as interest rates on debt capital are higher
+4. Is the influence of the management on the employees
+
+Q7:
+ A material difference between GmbH and AG concerns the…
+Wählen Sie eine Antwort:
+1. filing requirement in the public company register
+2. unlimited liability
+3. trading of company shares x
+4. number of partners to start a company
+
+Q8:
+ A limited liability Company (GmbH) in Germany has as minimum requirements all of the following:
+Wählen Sie eine Antwort:
+1. one partner, 25000 EUR starting capital, registration in public company register x
+2. two partners, 25000 EUR starting capital, registration in public company register
+3. one partner, 10000 EUR starting capital, registration in public company register
+4. one partner, 10000 EUR starting capital, no registration in public company register
+
+Q9:
+ The profit according to the profit and loss account must correspond to the profit shown in the balance sheet. Is this true?
+Wählen Sie eine Antwort:
+1. Yes, always x
+2. No, wrong
+3. Yes, if profit; no, if loss
+4. Yes, if loss; no, if profit
+
+Q10:
+ What is an example of inbound open innovation?
+Wählen Sie eine Antwort:
+1. Participate in open innovation as problem solver
+2. Spin-off
+3. Open source
+4. Idea competition x
+
+Q11:
+ What is a fundamental goal of the shareholders of a company?
+Wählen Sie eine Antwort:
+1. Gaining power and prestige within the company
+2. Grow the shareholder value x
+3. Withdraw the profits from the company each year
+4. Switch the management
+
+Q12:
+ A product-division organization decribes a…
+Wählen Sie eine Antwort:
+1. swarm organization
+2. two-dimensional organization
+3. hybrid organization
+4. one-dimensional organization x
+
+Q13:
+ What is the open innovation funnel?
+Wählen Sie eine Antwort:
+1. Definition of innovation
+2. Stage-gate model applied to innovation
+3. Depiction of the innovation process with internal and external sources of knowledge x
+4. Interactive map to locate innovation opportunities
+
+Q14:
+ If a company is facilitating a co-development project with external stakeholders it is not aiming at
+Wählen Sie eine Antwort:
+1. shorter time-to-market span
+2. sharing costs and risks
+3. developing a product that meets customer requirements
+4. exclusive rights in the innovated product x
+
+Q15:
+ In the manufacture of technical products, the resources of human labour and mechanical production can be substituted to a certain extent.
+Wählen Sie eine Antwort:
+1. Only, if machine production is cheaper
+2. No, always exist in parallel to the same extent
+3. Yes, this is the base for automation x
+4. Only if manual work is cheaper
+
+Q16:
+ A GmbH & Co KG is founded to
+Wählen Sie eine Antwort:
+1. limit the liability due to the other partner
+2. limit the liability due to the KG
+3. 0
+4. limit the liability due to the GmbH x
+
+Q17:
+ What is top-down the right order?
+Wählen Sie eine Antwort:
+1. No ranking possible
+2. Vision - mission - strategy x
+3. Mission - vision - strategy
+4. Mission - strategy - vision
+
+Q18:
+ What does rarely occur?
+Wählen Sie eine Antwort:
+1. Radical innovation x
+2. Combination of existing factors
+3. Product innovation
+4. Incremental innovation
+
+Q19:
+ What is the value of a product?
+Wählen Sie eine Antwort:
+1. Extent to which the product fullfils a need experienced by the customers x
+2. Ratio between price and useful life of the product
+3. Extent to which the product is in service
+4. List price of the product
+
+Q20:
+ Which stakeholder group has a significant influence on the economic goals of the company?
+Wählen Sie eine Antwort:
+1. Owner/Shareholder x
+2. Suppliers
+3. Employees
+4. Media
+
+Q21:
+What is the PDCA-circle?
+1. Plan-Derail-Cry-Abandon
+2. Proper-Doing-Cost-Accounting
+3. Perr-demonstration-customer-absence
+4. Plan-Do-Check-Act x
+
+Q22:
+The costs of goods sold does not include
+1. Social benefits of factory workers who manufactured sold products
+2. Raw material of sold products
+3. Salaries of factory workers who manufactured sold products
+4. Cost of finished goods x
+
+Q23:
+The product lifecycle concept is used to assess
+1. When change the value chain
+2. When motivation is highest
+3. When the output is generated
+4. When sinking revenues are expected x
+
+Q24:
+Strategic Controlling focus is set on:
+1. Profitability
+2. Markets x
+3. Efficiency
+4. Costs
+
+Q25:
+Balance sheet: the equity includes
+1. Profit x
+2. Machinery
+3. Assets 
+4. Cash
+
+Q26:
+Profit and loss account: If the operating income is negative,
+1. More people are needed
+2. Better financing is needed
+3. It does not make sense to offer the product x
+4. An extraordinary income is needed
+
+Q27:
+The 4-P model does not analyse
+1. Promotion
+2. Place
+3. Product
+4. People x
+
+Q28:
+What is the managerial grid?
+1. Division of labour
+2. One-dimensional leadership style
+3. Three-dimensional leadership style
+4. Two-dimensional leadership style x
+
+Q29:
+Can the leadership style be mapped in the SWOT analysis?
+1. No
+2. Yes, in strengths x
+3. Yes, in threats
+4. Yes, in opportunities
+
+Q30:
+Profit and loss account: Improve the operating income by
+1. Pay lower interest on loans
+2. Make more revenue x
+3. Pay tax on time 
+4. Nothing can be done, it is destiny
+
+Q31:
+The value chain of a company describes
+1. Market potentials
+2. Inputs, transformation processes and output of a company x
+3. Market development strategies
+4. Sources of revenue
+
+Q32:
+The depiction of the five forces concept explains in the center the
+1. New products
+2. Competitive rivalry x
+3. Substitute products
+4. New entrants
+
+Q33: 
+In context of the industry life cycle concept, companies can except the following in the stage of market saturation:
+1. High market growth-rates
+2. Decreasing product quality
+3. Increasing number of competitors
+4. High product quality x
+
+Q34:
+What is a tangible negative incentive?
+1. Promotion
+2. Warning notice
+3. Less interesting projects
+4. Reduction in salary x
+
+Q35:
+Which type of assets does not belong in the current assets?
+1. Property x
+2. Finished goods
+3. Accounts receivable
+4. Cash 
+
+Q36:
+What means WACC?
+1. Weighted accounting cost calculation
+2. Warning after cost calculation
+3. Weighted average cost of capital x
+4. With all customers close
+
+Q37:
+Can the emergence of substitute products offered by others be mapped in the SWOT analysis?
+1. No
+2. Yes, in threats x
+3. Yes, in strengths
+4. Yes, in strengths
+
+Q38:
+Which is not a feature within the concept of management by objectives?
+1. Setting goals in a cooperative process
+2. Delegate work x
+3. Monitor achievement of goals
+4. Staff appraisal to give feedback on goal achievement 
+
+Q39:
+How should you set the payment terms to your customers?
+1. Short, to optimize cash flow x
+2. Long, to optimize cash flow
+3. Has not an effect on own company
+4. Short, to optimize fixed assets
+
+Q40:
+What is the PEST analysis?
+1. A stage within the lifecycle concept
+2. Mathematical model to define financial success
+3. Strategic analysis of the environment x
+4. Strategic analysis of the company internally
+
+Q41:
+When using the total cost method to compile the profit and loss account, what is not considered?
+1. Sales costs x
+2. Material expenses
+3. Depreciation
+4. Salaries
+
+Q42:
+What is an intangible positive incentive?
+1. Pay raise
+2. Company car
+3. Employee of the month x
+4. Warning notice
+
+Q43:
+What is the purpose of a cash flow forecast?
+1. Identify loss early
+2. Identify operating income early
+3. Identify financing need early x
+4. Identify profit early
