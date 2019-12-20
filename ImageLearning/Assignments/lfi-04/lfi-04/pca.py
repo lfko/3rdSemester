@@ -44,7 +44,9 @@ def load_images(path: str, file_ending: str=".png") -> (list, int, int):
 
 if __name__ == '__main__':
 
-    images, x, y = load_images('./data/train/')
+    #print(os.getcwd())
+
+    images, x, y = load_images('../data/train/')
 
     # setup data matrix
     D = np.zeros((len(images), images[0].size), dtype=images[0].dtype)
@@ -52,44 +54,47 @@ if __name__ == '__main__':
         D[i, :] = images[i].flatten()
 
     # 1. calculate and subtract mean to center the data in D
-    # TODO YOUR CODE HERE
+    for i in range(D.shape[0]):
+        D[i, :] -= D.mean()
 
     # calculate PCA
     # 2. now we can do a linear operation on the data
     #    and find the best linear mapping (eigenbasis) - use the np.linalg.svd with the
     #    parameter 'full_matrices=False'
-    # TODO YOUR CODE HERE
+    U, S, V_T = np.linalg.svd(D, full_matrices=False) # U, Sigma, V_transpose
 
-    # take 10 / 75 / 300 first eigenvectors
-    k = 10
+    # take 10 / 75 / 150 first eigenvectors
+    k = 150
     # cut off number of Principal Components / compress the information to most important eigenvectors
     # That means we only need the first k rows in the Vt matrix
-    # TODO YOUR CODE HERE
+    V_T = V_T[0:k, ]
 
     # now we use the eigenbasis to compress and reconstruct test images
     # and measure their reconstruction error
     errors = []
-    images_test, x, y = load_images('./data/test/')
+    images_test, x, y = load_images('../data/test/')
 
     for i, test_image in enumerate(images_test):
 
         # flatten and center the test image
-        # TODO YOUR CODE HERE
+        test_image = test_image.flatten()
+        test_image = (test_image - test_image.mean()) / test_image.std()
 
         # project in basis by using the dot product of the eigenbasis and the flattened image vector
         # the result is a set of coefficients that are sufficient to reconstruct the image afterwards
-        # coeff_test_image = ...
-        # TODO YOUR CODE HERE
-        # print("encoded / compact image shape: ", coeff_test_image.shape)
+        coeff_test_image = V_T.dot(test_image)
+        #
+        print("encoded / compact image shape: ", coeff_test_image.shape)
         # reconstruct from coefficient vector and add mean
-        # reconstructed_image = ...
-        # TODO YOUR CODE HERE
-        # print("reconstructed image shape: ", reconstructed_image.shape)
-        # img_reconst = reconstructed_image.reshape(images_test[0].shape)
+        print(coeff_test_image)
+        print(type(coeff_test_image))
+        reconstructed_image = coeff_test_image.data.numpy() + test_image.mean()
+        print("reconstructed image shape: ", reconstructed_image.shape)
+        img_reconst = reconstructed_image.reshape(images_test[0].shape)
 
-        # error = np.linalg.norm(test_image - img_reconst)
-        # errors.append(error)
-        # print("reconstruction error: ", error)
+        error = np.linalg.norm(test_image - img_reconst)
+        errors.append(error)
+        print("reconstruction error: ", error)
 
     grid = plt.GridSpec(2, 9)
 
