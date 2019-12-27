@@ -46,7 +46,7 @@ if __name__ == '__main__':
 
     #print(os.getcwd())
 
-    images, x, y = load_images('../data/train/')
+    images, x, y = load_images('./data/train/')
 
     # setup data matrix
     D = np.zeros((len(images), images[0].size), dtype=images[0].dtype)
@@ -72,23 +72,22 @@ if __name__ == '__main__':
     # now we use the eigenbasis to compress and reconstruct test images
     # and measure their reconstruction error
     errors = []
-    images_test, x, y = load_images('../data/test/')
+    images_test, x, y = load_images('./data/test/')
 
     for i, test_image in enumerate(images_test):
 
         # flatten and center the test image
-        test_image = test_image.flatten()
-        test_image = (test_image - test_image.mean()) / test_image.std()
+        test_image_flatten = test_image.flatten()
+        test_image_flatten = (test_image_flatten - test_image_flatten.mean()) / test_image_flatten.std()
 
         # project in basis by using the dot product of the eigenbasis and the flattened image vector
         # the result is a set of coefficients that are sufficient to reconstruct the image afterwards
-        coeff_test_image = V_T.dot(test_image)
+        coeff_test_image = np.dot(V_T, test_image_flatten)
         #
         print("encoded / compact image shape: ", coeff_test_image.shape)
+
         # reconstruct from coefficient vector and add mean
-        print(coeff_test_image)
-        print(type(coeff_test_image))
-        reconstructed_image = coeff_test_image.data.numpy() + test_image.mean()
+        reconstructed_image = np.dot(V_T.T, coeff_test_image)
         print("reconstructed image shape: ", reconstructed_image.shape)
         img_reconst = reconstructed_image.reshape(images_test[0].shape)
 
